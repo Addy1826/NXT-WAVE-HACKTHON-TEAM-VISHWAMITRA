@@ -92,6 +92,7 @@ model Therapist {
   licenseState          String                       // e.g., "CA", "NY"
   licenseExpiryDate     DateTime
   specializations       String[]                     // ["Anxiety", "Depression", "PTSD", "Addiction"]
+  certifications        String[]                     @default([]) // ["CBT Certified", "Trauma Specialist"]
   bio                   String                       @db.Text
   experienceYears       Int                          @default(0)
   languages             String[]                     // ["English", "Hindi", "Spanish"]
@@ -104,7 +105,9 @@ model Therapist {
   
   // Financials
   hourlyRateUSD         Decimal                      @db.Decimal(10, 2)
-  currency              String                       @default("USD")
+  hourlyRateINR         Decimal?                     @db.Decimal(10, 2) // Indian pricing
+  currency              String                       @default("INR")
+  feeStructure          Json?                        // { individual50: number, couples75: number, consult30: number }
   stripeAccountId       String?                      // For payouts
   razorpayAccountId     String?                      // India-specific
   
@@ -127,6 +130,7 @@ model Therapist {
   appointments          Appointment[]                @relation("TherapistAppointments")
   availability          TherapistAvailability[]
   reviews               TherapistReview[]
+  activityLogs          ActivityLog[]
   
   @@index([verificationStatus, isAcceptingPatients])
   @@index([specializations])
@@ -269,7 +273,8 @@ model Payment {
   
   // Payment Details
   amountUSD         Decimal         @db.Decimal(10, 2)
-  currency          String          @default("USD")
+  amountINR         Decimal?        @db.Decimal(10, 2) // For Indian therapists
+  currency          String          @default("INR")
   status            PaymentStatus   @default(PENDING)
   provider          PaymentProvider @default(RAZORPAY)
   
@@ -421,4 +426,34 @@ model MoodLog {
   
   @@index([userId, loggedAt])
   @@map("mood_logs")
+}
+
+// ============================================================================
+// ACTIVITY LOG (Therapist Dashboard)
+// ============================================================================
+
+enum ActivityType {
+  SESSION_COMPLETED
+  SESSION_SCHEDULED
+  MESSAGE_SENT
+  NOTES_ADDED
+  APPOINTMENT_APPROVED
+  APPOINTMENT_REJECTED
+  PATIENT_ADDED
+}
+
+model ActivityLog {
+  id              String       @id @default(uuid())
+  
+  therapistId     String
+  therapist       Therapist    @relation(fields: [therapistId], references: [id], onDelete: Cascade)
+  
+  actionType      ActivityType
+  relatedEntityId String?      // Patient ID, Appointment ID, etc.
+  metadata        Json?        // Flexible additional data { patientName: string, sessionDuration: number }
+  
+  createdAt       DateTime     @default(now())
+  
+  @@index([therapistId, createdAt])
+  @@map("activity_logs")
 }

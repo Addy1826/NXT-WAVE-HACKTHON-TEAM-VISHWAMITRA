@@ -2672,3 +2672,45 @@
 {"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mEnvironment: development\u001b[39m","timestamp":"2026-01-11 01:07:04:74"}
 {"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mFrontend URL: http://localhost:5173\u001b[39m","timestamp":"2026-01-11 01:07:04:74"}
 {"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mSIGINT received, shutting down gracefully\u001b[39m","timestamp":"2026-01-11 01:30:50:3050"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m✅ Gemini AI service initialized successfully\u001b[39m","timestamp":"2026-01-11 01:31:10:3110"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m✅ Gemini AI service initialized successfully\u001b[39m","timestamp":"2026-01-11 01:31:10:3110"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m✅ Database connected successfully\u001b[39m","timestamp":"2026-01-11 01:31:14:3114"}
+{"level":"\u001b[33mwarn\u001b[39m","message":"\u001b[33m⚠️ Redis disabled or URL missing. Caching turned off (Demo Mode).\u001b[39m","timestamp":"2026-01-11 01:31:14:3114"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mMental Health Server running on port 3001\u001b[39m","timestamp":"2026-01-11 01:31:14:3114"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mEnvironment: development\u001b[39m","timestamp":"2026-01-11 01:31:14:3114"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mFrontend URL: http://localhost:5173\u001b[39m","timestamp":"2026-01-11 01:31:14:3114"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mSocket connection attempt: 4grHz7kHYpE0vKVPAAAC\u001b[39m","timestamp":"2026-01-11 01:32:49:3249"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mUser connected: 4grHz7kHYpE0vKVPAAAC\u001b[39m","timestamp":"2026-01-11 01:32:49:3249"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mUser disconnected: 4grHz7kHYpE0vKVPAAAC, reason: client namespace disconnect\u001b[39m","timestamp":"2026-01-11 01:32:56:3256"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mSocket connection attempt: z_7ryAXnxlwiYctxAAAF\u001b[39m","timestamp":"2026-01-11 01:33:19:3319"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mUser connected: z_7ryAXnxlwiYctxAAAF\u001b[39m","timestamp":"2026-01-11 01:33:19:3319"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mSocket connection attempt: VMm5ChI5UIc6r7wZAAAI\u001b[39m","timestamp":"2026-01-11 01:34:25:3425"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mUser connected: VMm5ChI5UIc6r7wZAAAI\u001b[39m","timestamp":"2026-01-11 01:34:25:3425"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mUser disconnected: VMm5ChI5UIc6r7wZAAAI, reason: client namespace disconnect\u001b[39m","timestamp":"2026-01-11 01:34:27:3427"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mSocket connection attempt: MX4KWtv4G_jt7eJpAAAL\u001b[39m","timestamp":"2026-01-11 01:34:48:3448"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mUser connected: MX4KWtv4G_jt7eJpAAAL\u001b[39m","timestamp":"2026-01-11 01:34:48:3448"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mUser disconnected: MX4KWtv4G_jt7eJpAAAL, reason: client namespace disconnect\u001b[39m","timestamp":"2026-01-11 01:34:59:3459"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mSocket connection attempt: sUIq94BOmrxEFUUNAAAO\u001b[39m","timestamp":"2026-01-11 01:35:06:356"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mUser connected: sUIq94BOmrxEFUUNAAAO\u001b[39m","timestamp":"2026-01-11 01:35:06:356"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mUser disconnected: z_7ryAXnxlwiYctxAAAF, reason: client namespace disconnect\u001b[39m","timestamp":"2026-01-11 01:35:15:3515"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mSocket connection attempt: zzsE4TFiOJuXzcRVAAAR\u001b[39m","timestamp":"2026-01-11 01:35:55:3555"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mUser connected: zzsE4TFiOJuXzcRVAAAR\u001b[39m","timestamp":"2026-01-11 01:35:55:3555"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mUser disconnected: zzsE4TFiOJuXzcRVAAAR, reason: client namespace disconnect\u001b[39m","timestamp":"2026-01-11 01:35:57:3557"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mUser disconnected: sUIq94BOmrxEFUUNAAAO, reason: client namespace disconnect\u001b[39m","timestamp":"2026-01-11 01:36:34:3634"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mSocket connection attempt: kKSonse5jAGp0JPDAAAU\u001b[39m","timestamp":"2026-01-11 01:44:09:449"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mUser connected: kKSonse5jAGp0JPDAAAU\u001b[39m","timestamp":"2026-01-11 01:44:09:449"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mUser disconnected: kKSonse5jAGp0JPDAAAU, reason: client namespace disconnect\u001b[39m","timestamp":"2026-01-11 01:44:11:4411"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mSocket connection attempt: qdlSt-WUOTEXXDK4AAAX\u001b[39m","timestamp":"2026-01-11 01:44:21:4421"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mUser connected: qdlSt-WUOTEXXDK4AAAX\u001b[39m","timestamp":"2026-01-11 01:44:21:4421"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mSocket connection attempt: fqbNxL4X5VoDMVlKAAAa\u001b[39m","timestamp":"2026-01-11 01:44:31:4431"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mUser connected: fqbNxL4X5VoDMVlKAAAa\u001b[39m","timestamp":"2026-01-11 01:44:31:4431"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mUser disconnected: fqbNxL4X5VoDMVlKAAAa, reason: client namespace disconnect\u001b[39m","timestamp":"2026-01-11 01:44:33:4433"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m✅ Gemini AI service initialized successfully\u001b[39m","timestamp":"2026-01-11 02:10:22:1022"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m✅ Gemini AI service initialized successfully\u001b[39m","timestamp":"2026-01-11 02:10:23:1023"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m✅ Database connected successfully\u001b[39m","timestamp":"2026-01-11 02:10:24:1024"}
+{"level":"\u001b[33mwarn\u001b[39m","message":"\u001b[33m⚠️ Redis disabled or URL missing. Caching turned off (Demo Mode).\u001b[39m","timestamp":"2026-01-11 02:10:24:1024"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mMental Health Server running on port 3001\u001b[39m","timestamp":"2026-01-11 02:10:24:1024"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mEnvironment: development\u001b[39m","timestamp":"2026-01-11 02:10:24:1024"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mFrontend URL: http://localhost:5173\u001b[39m","timestamp":"2026-01-11 02:10:24:1024"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mSocket connection attempt: jN2IcvgER_f0V7fsAAAB\u001b[39m","timestamp":"2026-01-11 02:10:25:1025"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mUser connected: jN2IcvgER_f0V7fsAAAB\u001b[39m","timestamp":"2026-01-11 02:10:25:1025"}

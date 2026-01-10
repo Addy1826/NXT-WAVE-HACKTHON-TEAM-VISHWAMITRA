@@ -12,7 +12,7 @@ import { ErrorBoundary } from './components/ErrorBoundary';
 import { LandingPage } from './pages/LandingPage';
 import { BreathingExercisesPage } from './pages/BreathingExercisesPage';
 import { ProgressPage } from './pages/ProgressPage';
-import { ResourcesPage } from './pages/ResourcesPage';
+import { PatientResourcesPage } from './pages/PatientResourcesPage';
 import { ChatbotPage } from './pages/ChatbotPage';
 import { TherapistLayout } from './layouts/TherapistLayout';
 import { TherapistDashboardPage } from './pages/TherapistDashboardPage';
@@ -24,6 +24,10 @@ import { SettingsPage } from './pages/therapist/SettingsPage';
 import { PatientProfilePage } from './pages/therapist/PatientProfilePage';
 import { SessionPage } from './pages/therapist/SessionPage';
 import { MessagesPage } from './pages/therapist/MessagesPage';
+import { PatientAppointmentsPage } from './pages/PatientAppointmentsPage';
+import { TherapistBookingPage } from './pages/TherapistBookingPage';
+import { PatientMessagesPage } from './pages/PatientMessagesPage';
+import { VideoSessionPage } from './pages/VideoSessionPage';
 import { PageTransition } from './components/PageTransition';
 import { ScrollToTop } from './components/ScrollToTop';
 
@@ -84,8 +88,12 @@ const AnimatedRoutes = () => {
         <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
         <Route path="/breathing" element={<ProtectedRoute><BreathingExercisesPage /></ProtectedRoute>} />
         <Route path="/progress" element={<ProtectedRoute><ProgressPage /></ProtectedRoute>} />
-        <Route path="/resources" element={<ProtectedRoute><ResourcesPage /></ProtectedRoute>} />
+        <Route path="/resources" element={<ProtectedRoute><PatientResourcesPage /></ProtectedRoute>} />
         <Route path="/chatbot" element={<ProtectedRoute><ChatbotPage /></ProtectedRoute>} />
+        <Route path="/appointments" element={<ProtectedRoute><PatientAppointmentsPage /></ProtectedRoute>} />
+        <Route path="/therapist-profile/:therapistId" element={<ProtectedRoute><TherapistBookingPage /></ProtectedRoute>} />
+        <Route path="/messages" element={<ProtectedRoute><PatientMessagesPage /></ProtectedRoute>} />
+        <Route path="/session/:sessionId" element={<ProtectedRoute><VideoSessionPage /></ProtectedRoute>} />
 
         {/* Therapist Routes */}
         <Route path="/therapist" element={<TherapistRoute><TherapistLayout /></TherapistRoute>}>

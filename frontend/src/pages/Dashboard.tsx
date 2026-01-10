@@ -101,17 +101,15 @@ export const Dashboard: React.FC = () => {
                         <span className="font-medium">Home</span>
                     </button>
                     <button
-                        onClick={() => setActiveTab('chat')}
-                        className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${activeTab === 'chat' ? 'bg-primary-50 text-primary-700' : 'text-slate-600 hover:bg-slate-50'
-                            }`}
+                        onClick={() => navigate('/messages')}
+                        className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors text-slate-600 hover:bg-slate-50"
                     >
                         <MessageSquare className="h-5 w-5" />
                         <span className="font-medium">Messages</span>
                     </button>
                     <button
-                        onClick={() => setActiveTab('appointments')}
-                        className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${activeTab === 'appointments' ? 'bg-primary-50 text-primary-700' : 'text-slate-600 hover:bg-slate-50'
-                            }`}
+                        onClick={() => navigate('/appointments')}
+                        className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors text-slate-600 hover:bg-slate-50"
                     >
                         <Calendar className="h-5 w-5" />
                         <span className="font-medium">Appointments</span>

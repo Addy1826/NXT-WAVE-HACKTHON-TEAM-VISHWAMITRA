@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import { io, Socket } from 'socket.io-client';
 
-interface CrisisAlert {
+export interface CrisisAlert {
     id: string;
     crisisLevel: number;
     urgency: string;
     keywords: string[];
+    message: string; // Alert message to display
     patientInfo: string;
     timestamp: Date;
     userId: string;
@@ -42,6 +43,7 @@ export const useTherapistCrisisAlerts = (): UseTherapistCrisisAlertsReturn => {
                 crisisLevel: data.crisisLevel,
                 urgency: data.urgency,
                 keywords: data.keywords || [],
+                message: data.message || `Level ${data.crisisLevel}/10 emergency - Immediate assistance required`,
                 patientInfo: `Anonymous Patient (Level ${data.crisisLevel}/10 emergency)`,
                 timestamp: new Date(),
                 userId: data.userId || 'unknown'
