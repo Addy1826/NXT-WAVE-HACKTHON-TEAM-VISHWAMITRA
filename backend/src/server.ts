@@ -75,7 +75,8 @@ class MentalHealthServer {
     }
 
     private initializeServices(): void {
-        this.chatService = new ChatService();
+        // Pass Socket.IO instance to ChatService for crisis detection emissions
+        this.chatService = new ChatService(this.io);
         this.crisisDetectionService = new CrisisDetectionService();
         this.therapistMatchingService = new TherapistMatchingService();
         this.notificationService = new NotificationService();

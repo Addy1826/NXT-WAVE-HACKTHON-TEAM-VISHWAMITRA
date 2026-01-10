@@ -17,9 +17,16 @@ export const config: DatabaseConfig = {
 };
 
 export async function connectDatabase(): Promise<void> {
+    const mongoUri = process.env.MONGODB_URI || process.env.DATABASE_URL;
+
+    if (!mongoUri) {
+        logger.warn('⚠️ MongoDB URI missing. Chat history will not be saved. (Demo Mode)');
+        return;
+    }
+
     try {
-        await mongoose.connect(config.uri, config.options);
-        logger.info('Database connected successfully');
+        await mongoose.connect(mongoUri, config.options);
+        logger.info('✅ Database connected successfully');
 
         // Handle connection events
         mongoose.connection.on('error', (error) => {
@@ -35,8 +42,8 @@ export async function connectDatabase(): Promise<void> {
         });
 
     } catch (error) {
-        logger.error('Database connection failed:', error);
-        throw error;
+        logger.warn('⚠️ MongoDB connection failed. Continuing without database. (Demo Mode)');
+        // Do not throw error so server continues to start
     }
 }
 

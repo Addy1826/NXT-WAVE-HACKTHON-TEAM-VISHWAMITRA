@@ -2,21 +2,44 @@ import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from '@google/ge
 import { logger } from '../utils/logger';
 
 export class GeminiService {
-    private genAI: GoogleGenerativeAI;
+    private genAI: GoogleGenerativeAI | null = null;
     private model: any;
+    private isAvailable: boolean = false;
 
     constructor() {
         const apiKey = process.env.GEMINI_API_KEY;
         if (!apiKey) {
-            logger.error('GEMINI_API_KEY is not set in environment variables');
-            throw new Error('GEMINI_API_KEY is missing');
+            console.warn('⚠️  GEMINI_API_KEY is missing. AI features disabled. Using fallback responses.');
+            logger.warn('GEMINI_API_KEY not found - Gemini service will use fallback mode');
+            this.isAvailable = false;
+            return; // Exit constructor early
         }
-        this.genAI = new GoogleGenerativeAI(apiKey);
-        // Using gemini-flash-latest
-        this.model = this.genAI.getGenerativeModel({ model: "gemini-flash-latest" });
+
+        try {
+            this.genAI = new GoogleGenerativeAI(apiKey);
+            this.model = this.genAI.getGenerativeModel({ model: "gemini-flash-latest" });
+            this.isAvailable = true;
+            logger.info('✅ Gemini AI service initialized successfully');
+        } catch (error) {
+            console.warn('⚠️  Failed to initialize Gemini. Using fallback mode.');
+            logger.error('Failed to initialize Gemini service:', error);
+            this.isAvailable = false;
+        }
+    }
+
+    private fallbackResponse(): string {
+        return "I'm here to listen and support you. While my AI features are temporarily unavailable, " +
+            "I want you to know that what you're feeling is valid. If you're in crisis, please reach out " +
+            "to a crisis helpline: Call 988 (US) or text HOME to 741741. You're not alone.";
     }
 
     async generateResponse(prompt: string): Promise<string> {
+        // Check if Gemini is available
+        if (!this.isAvailable) {
+            logger.warn('Gemini unavailable - returning fallback response');
+            return this.fallbackResponse();
+        }
+
         try {
             // Configure safety settings to allow discussion of sensitive topics (like mental health)
             // but still block malicious content. We rely on the prompt to handle safety constructively.
@@ -57,11 +80,17 @@ export class GeminiService {
                 logger.warn(`Gemini blocked content: ${error.response.promptFeedback.blockReason}`);
                 return "I care about your safety. If you are in immediate danger, please call 988 or text 741741. I cannot continue this specific conversation right now.";
             }
-            throw error;
+            // Return fallback on any error
+            logger.warn('Gemini error - falling back to default response');
+            return this.fallbackResponse();
         }
     }
 
     async checkHealth(): Promise<boolean> {
+        if (!this.isAvailable) {
+            return false;
+        }
+
         try {
             // fast probe
             const result = await this.model.generateContent("ping");

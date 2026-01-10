@@ -3,6 +3,8 @@ import { Send, Bot, User, Sparkles, ArrowLeft } from 'lucide-react';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { CrisisInterventionModal } from '../components/CrisisInterventionModal';
+import { useCrisisDetection } from '../hooks/useCrisisDetection';
 
 interface Message {
     _id: string;
@@ -19,6 +21,14 @@ export const ChatbotPage: React.FC = () => {
     const [conversationId, setConversationId] = useState<string | null>(null);
     const [isTyping, setIsTyping] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
+
+    // Crisis Detection Integration
+    const { crisisLevel, isCritical, showModal, detectedKeywords, dismissModal } = useCrisisDetection();
+
+    const handleConnectTherapist = () => {
+        // Navigate to therapist selection or booking page
+        navigate('/therapists');
+    };
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -201,6 +211,15 @@ export const ChatbotPage: React.FC = () => {
                     </p>
                 </div>
             </div>
+
+            {/* Crisis Intervention Modal */}
+            <CrisisInterventionModal
+                isOpen={showModal}
+                crisisLevel={crisisLevel}
+                detectedKeywords={detectedKeywords}
+                onClose={dismissModal}
+                onConnectTherapist={handleConnectTherapist}
+            />
         </div>
     );
 };
