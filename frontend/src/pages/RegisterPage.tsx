@@ -22,9 +22,19 @@ export const RegisterPage: React.FC = () => {
         try {
             const response = await api.post('/auth/register', { name, email, password, role });
             login(response.data.token, response.data.user);
-            navigate('/dashboard');
+            if (response.data.user.role === 'therapist') {
+                navigate('/therapist/dashboard');
+            } else {
+                navigate('/dashboard');
+            }
         } catch (err: any) {
-            setError(err.response?.data?.error || 'Failed to register');
+            const errorMessage = err.response?.data?.message
+                || err.response?.data?.error
+                || (typeof err.response?.data === 'string' ? err.response?.data : null)
+                || err.message
+                || 'Failed to register';
+            console.error('Registration Error:', err);
+            setError(errorMessage);
         } finally {
             setIsLoading(false);
         }

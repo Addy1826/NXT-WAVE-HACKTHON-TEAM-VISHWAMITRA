@@ -54,14 +54,21 @@ export const register = async (req: Request, res: Response) => {
         await user.save();
 
         if (role === 'therapist') {
-            const therapist = new Therapist({
-                user: user._id,
-                specialization,
-                bio,
-                experienceYears,
-                hourlyRate
-            });
-            await therapist.save();
+            try {
+                const therapist = new Therapist({
+                    user: user._id,
+                    specialization: specialization || [],
+                    bio: bio || '',
+                    experienceYears: experienceYears || 0,
+                    hourlyRate: hourlyRate || 0
+                });
+                await therapist.save();
+            } catch (error) {
+                // Rollback: Delete the user if therapist profile creation fails
+                await User.findByIdAndDelete(user._id);
+                console.error('Failed to create therapist profile, rolling back user:', error);
+                return res.status(500).json({ message: 'Failed to create therapist profile' });
+            }
         }
 
         const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET || 'your_jwt_secret', { expiresIn: '1d' });

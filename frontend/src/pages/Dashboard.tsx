@@ -5,7 +5,6 @@ import { TherapistList } from '../components/TherapistList';
 import { TherapistProfile } from '../components/TherapistProfile';
 import { InspirationPage } from './InspirationPage';
 import { ProfilePage } from './ProfilePage';
-import { TherapistDashboard } from '../components/TherapistDashboard';
 import api from '../services/api';
 import { LogOut, MessageSquare, Calendar, User, Home, TrendingUp, BookOpen, Bot } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -18,9 +17,13 @@ export const Dashboard: React.FC = () => {
     const [activeTab, setActiveTab] = useState<'home' | 'chat' | 'appointments' | 'profile'>('home');
 
     useEffect(() => {
+        if (user?.role === 'therapist') {
+            navigate('/therapist/dashboard', { replace: true });
+            return;
+        }
         fetchConversations();
         fetchAppointments();
-    }, []);
+    }, [user, navigate]);
 
     const [appointments, setAppointments] = useState<any[]>([]);
 
@@ -169,87 +172,81 @@ export const Dashboard: React.FC = () => {
 
             {/* Main Content */}
             <main className="flex-1 flex flex-col min-w-0 overflow-hidden">
-                {user?.role === 'therapist' ? (
-                    <TherapistDashboard />
-                ) : (
-                    <>
-                        {activeTab === 'home' && <InspirationPage />}
+                {activeTab === 'home' && <InspirationPage />}
 
-                        {activeTab === 'chat' && (
-                            <div className="flex-1 flex">
-                                {/* Conversation List */}
-                                <div className="w-80 bg-white border-r border-slate-200 flex flex-col">
-                                    <div className="p-4 border-b border-slate-200">
-                                        <h3 className="font-bold text-slate-700">Your Conversations</h3>
-                                    </div>
-                                    <div className="flex-1 overflow-y-auto">
-                                        {conversations.map(conv => (
-                                            <button
-                                                key={conv._id}
-                                                onClick={() => setSelectedConversationId(conv._id)}
-                                                className={`w-full p-4 text-left border-b border-slate-100 hover:bg-slate-50 transition-colors ${selectedConversationId === conv._id ? 'bg-primary-50' : ''
-                                                    }`}
-                                            >
-                                                <div className="flex justify-between items-start">
-                                                    <h4 className="font-medium text-slate-900 truncate">
-                                                        {conv.type === 'group' ? conv.groupName : 'Direct Chat'}
-                                                    </h4>
-                                                    <span className="text-xs text-slate-500">
-                                                        {new Date(conv.updatedAt).toLocaleDateString()}
-                                                    </span>
-                                                </div>
-                                                <p className="text-sm text-slate-500 truncate mt-1">
-                                                    {conv.lastMessage?.content || 'No messages yet'}
-                                                </p>
-                                            </button>
-                                        ))}
-                                    </div>
-                                </div>
-
-                                {/* Chat Area */}
-                                <div className="flex-1 bg-slate-50 p-4">
-                                    {selectedConversationId ? (
-                                        <ChatWindow conversationId={selectedConversationId} />
-                                    ) : (
-                                        <div className="h-full flex items-center justify-center text-slate-500">
-                                            Select a conversation to start chatting
-                                        </div>
-                                    )}
-                                </div>
+                {activeTab === 'chat' && (
+                    <div className="flex-1 flex">
+                        {/* Conversation List */}
+                        <div className="w-80 bg-white border-r border-slate-200 flex flex-col">
+                            <div className="p-4 border-b border-slate-200">
+                                <h3 className="font-bold text-slate-700">Your Conversations</h3>
                             </div>
-                        )}
-
-                        {activeTab === 'appointments' && (
-                            <div className="p-8 overflow-y-auto h-full">
-                                {selectedTherapist ? (
-                                    <TherapistProfile
-                                        therapist={selectedTherapist}
-                                        onBack={() => setSelectedTherapist(null)}
-                                        onChat={() => handleChatWithTherapist(selectedTherapist._id)}
-                                        onBookingComplete={fetchAppointments}
-                                    />
-                                ) : (
-                                    <>
-                                        <div className="flex justify-between items-center mb-6">
-                                            <h2 className="text-2xl font-bold text-slate-900">Find a Specialist</h2>
-                                            <div className="flex gap-2">
-                                                <select className="border border-slate-300 rounded-lg px-3 py-2 text-sm">
-                                                    <option>All Specializations</option>
-                                                    <option>Anxiety</option>
-                                                    <option>Depression</option>
-                                                    <option>Couples Therapy</option>
-                                                </select>
-                                            </div>
+                            <div className="flex-1 overflow-y-auto">
+                                {conversations.map(conv => (
+                                    <button
+                                        key={conv._id}
+                                        onClick={() => setSelectedConversationId(conv._id)}
+                                        className={`w-full p-4 text-left border-b border-slate-100 hover:bg-slate-50 transition-colors ${selectedConversationId === conv._id ? 'bg-primary-50' : ''
+                                            }`}
+                                    >
+                                        <div className="flex justify-between items-start">
+                                            <h4 className="font-medium text-slate-900 truncate">
+                                                {conv.type === 'group' ? conv.groupName : 'Direct Chat'}
+                                            </h4>
+                                            <span className="text-xs text-slate-500">
+                                                {new Date(conv.updatedAt).toLocaleDateString()}
+                                            </span>
                                         </div>
-                                        <TherapistList onSelect={setSelectedTherapist} />
-                                    </>
-                                )}
+                                        <p className="text-sm text-slate-500 truncate mt-1">
+                                            {conv.lastMessage?.content || 'No messages yet'}
+                                        </p>
+                                    </button>
+                                ))}
                             </div>
-                        )}
+                        </div>
 
-                        {activeTab === 'profile' && <ProfilePage />}
-                    </>
+                        {/* Chat Area */}
+                        <div className="flex-1 bg-slate-50 p-4">
+                            {selectedConversationId ? (
+                                <ChatWindow conversationId={selectedConversationId} />
+                            ) : (
+                                <div className="h-full flex items-center justify-center text-slate-500">
+                                    Select a conversation to start chatting
+                                </div>
+                            )}
+                        </div>
+                    </div>
                 )}
+
+                {activeTab === 'appointments' && (
+                    <div className="p-8 overflow-y-auto h-full">
+                        {selectedTherapist ? (
+                            <TherapistProfile
+                                therapist={selectedTherapist}
+                                onBack={() => setSelectedTherapist(null)}
+                                onChat={() => handleChatWithTherapist(selectedTherapist._id)}
+                                onBookingComplete={fetchAppointments}
+                            />
+                        ) : (
+                            <>
+                                <div className="flex justify-between items-center mb-6">
+                                    <h2 className="text-2xl font-bold text-slate-900">Find a Specialist</h2>
+                                    <div className="flex gap-2">
+                                        <select className="border border-slate-300 rounded-lg px-3 py-2 text-sm">
+                                            <option>All Specializations</option>
+                                            <option>Anxiety</option>
+                                            <option>Depression</option>
+                                            <option>Couples Therapy</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <TherapistList onSelect={setSelectedTherapist} />
+                            </>
+                        )}
+                    </div>
+                )}
+
+                {activeTab === 'profile' && <ProfilePage />}
             </main>
         </div>
     );

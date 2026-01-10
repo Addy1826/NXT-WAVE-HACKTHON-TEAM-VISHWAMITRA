@@ -20,7 +20,11 @@ export const LoginPage: React.FC = () => {
         try {
             const response = await api.post('/auth/login', { email, password });
             login(response.data.token, response.data.user);
-            navigate('/dashboard');
+            if (response.data.user.role === 'therapist') {
+                navigate('/therapist/dashboard');
+            } else {
+                navigate('/dashboard');
+            }
         } catch (err: any) {
             setError(err.response?.data?.error || 'Failed to login');
         } finally {

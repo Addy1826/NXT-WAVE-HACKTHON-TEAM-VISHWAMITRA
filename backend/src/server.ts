@@ -28,6 +28,7 @@ import sessionRoutes from './routes/session';
 import videoRoutes from './routes/video';
 import servicesRoutes from './routes/services';
 import newsRoutes from './routes/news';
+import appointmentRoutes from './routes/appointment';
 
 import { Server as SocketIOServer } from 'socket.io';
 import helmet from 'helmet';
@@ -160,6 +161,7 @@ class MentalHealthServer {
         this.app.use('/api/video', authMiddleware, videoRoutes);
         this.app.use('/api/services', authMiddleware, servicesRoutes);
         this.app.use('/api/news', authMiddleware, newsRoutes);
+        this.app.use('/api/appointments', authMiddleware, appointmentRoutes);
 
         // Analyze proxy to ML service
         this.app.post('/api/analyze', authMiddleware, async (req, res) => {
@@ -219,7 +221,8 @@ class MentalHealthServer {
                     therapists: '/api/therapists',
                     crisis: '/api/crisis',
                     sessions: '/api/sessions',
-                    video: '/api/video'
+                    video: '/api/video',
+                    appointments: '/api/appointments'
                 }
             });
         });
