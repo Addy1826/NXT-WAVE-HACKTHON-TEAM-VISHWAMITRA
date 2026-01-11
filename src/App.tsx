@@ -31,12 +31,18 @@ import { VideoSessionPage } from './pages/VideoSessionPage';
 import { PageTransition } from './components/PageTransition';
 import { ScrollToTop } from './components/ScrollToTop';
 
+import { LoadingSpinner } from './components/LoadingSpinner';
+
 // Protected Route Wrapper
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated, isLoading } = useAuth();
 
   if (isLoading) {
-    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <LoadingSpinner size="lg" />
+      </div>
+    );
   }
 
   if (!isAuthenticated) {
@@ -49,7 +55,11 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
 const TherapistRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated, user, isLoading } = useAuth();
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading) return (
+    <div className="min-h-screen flex items-center justify-center bg-slate-50">
+      <LoadingSpinner size="lg" />
+    </div>
+  );
 
   // Strict check for therapist role
   if (!isAuthenticated || user?.role !== 'therapist') {
@@ -108,14 +118,22 @@ const AnimatedRoutes = () => {
   );
 };
 
+import { ToastProvider } from './context/ToastContext';
+
+// ... imports
+
+// ... AnimatedRoutes
+
 function App() {
   return (
     <ErrorBoundary>
       <AuthProvider>
-        <Router>
-          <ScrollToTop />
-          <AnimatedRoutes />
-        </Router>
+        <ToastProvider>
+          <Router>
+            <ScrollToTop />
+            <AnimatedRoutes />
+          </Router>
+        </ToastProvider>
       </AuthProvider>
     </ErrorBoundary>
   );
