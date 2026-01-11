@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { AreaChart, Area, XAxis, Tooltip, ResponsiveContainer } from 'recharts';
-import { Eye, Download, HelpCircle } from 'lucide-react';
+import { HelpCircle } from 'lucide-react';
 
 export const EarningsPage: React.FC = () => {
     // Mock Data for Chart

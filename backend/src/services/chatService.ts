@@ -42,7 +42,8 @@ export class ChatService {
             .exec();
 
         // Populate participants using Prisma
-        const participantIds = Array.from(new Set(conversations.flatMap(c => c.participants)));
+        const participantIds = Array.from(new Set(conversations.flatMap(c => c.participants)))
+            .filter(id => id !== 'bot');
         const users = await prisma.user.findMany({
             where: { id: { in: participantIds } },
             select: { id: true, name: true, role: true } // Add avatar if available in schema

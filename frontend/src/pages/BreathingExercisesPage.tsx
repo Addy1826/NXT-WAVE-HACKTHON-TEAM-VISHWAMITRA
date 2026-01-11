@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Wind, Square, Activity, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -181,8 +181,8 @@ export const BreathingExercisesPage: React.FC = () => {
 
     return (
         <div className={`min-h-screen transition-colors duration-1000 ${selectedExercise === 'box' ? 'bg-slate-900' :
-                selectedExercise === '478' ? 'bg-indigo-950' :
-                    selectedExercise === 'grounding' ? 'bg-teal-950' : 'bg-slate-900'
+            selectedExercise === '478' ? 'bg-indigo-950' :
+                selectedExercise === 'grounding' ? 'bg-teal-950' : 'bg-slate-900'
             } flex flex-col items-center justify-center p-6 relative overflow-hidden`}>
 
             {/* Background Ambience */}

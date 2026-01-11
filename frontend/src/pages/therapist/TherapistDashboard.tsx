@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Users, Calendar, DollarSign, MessageSquare, ChevronRight, MoreHorizontal, Clock } from 'lucide-react';
+import { Calendar, DollarSign, MessageSquare, ChevronRight, Clock } from 'lucide-react';
 import axios from 'axios';
-import { format } from 'date-fns';
+
 
 interface DashboardStats {
     totalPatients: number;
@@ -134,8 +134,8 @@ export const TherapistDashboard: React.FC = () => {
                                 return (
                                     <div key={day} className="flex justify-center">
                                         <button className={`w-8 h-8 flex items-center justify-center rounded-full text-sm ${isSelected ? 'bg-blue-500 text-white shadow-md shadow-blue-200' :
-                                                isToday ? 'bg-slate-100 text-slate-900 font-bold' :
-                                                    'text-slate-600 hover:bg-slate-50'
+                                            isToday ? 'bg-slate-100 text-slate-900 font-bold' :
+                                                'text-slate-600 hover:bg-slate-50'
                                             }`}>
                                             {day}
                                         </button>

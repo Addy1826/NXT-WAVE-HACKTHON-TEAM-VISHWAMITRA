@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useAuth } from '../../context/AuthContext';
-import { Star, MapPin, Calendar, Clock, DollarSign, CheckCircle, Shield, X, Save } from 'lucide-react';
+import { Star, MapPin, CheckCircle, Shield, X, Save } from 'lucide-react';
 
 export const TherapistProfilePage: React.FC = () => {
     const { user } = useAuth();
@@ -72,15 +72,7 @@ export const TherapistProfilePage: React.FC = () => {
         "National Certified Counselor (NCC)"
     ];
 
-    const availability = [
-        { day: 'Mon', slots: [] },
-        { day: 'Tue', slots: [] },
-        { day: 'Wed', slots: ['10', '11'] },
-        { day: 'Thu', slots: [] },
-        { day: 'Fri', slots: ['14'] },
-        { day: 'Sat', slots: ['20'] }, // Highlighted in ref
-        { day: 'Sun', slots: [] },
-    ];
+
 
     const reviews = [
         { id: 1, name: "Sarah M.", date: "2 weeks ago", rating: 5, comment: "Dr. Reed has been incredibly supportive and insightful. She helped me through a very difficult period with her compassionate approach. Highly recommend!" },

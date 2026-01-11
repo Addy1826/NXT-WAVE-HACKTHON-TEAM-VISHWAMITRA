@@ -23,7 +23,7 @@ export const ChatbotPage: React.FC = () => {
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
     // Crisis Detection Integration
-    const { crisisLevel, isCritical, showModal, detectedKeywords, dismissModal } = useCrisisDetection();
+    const { crisisLevel, showModal, detectedKeywords, dismissModal } = useCrisisDetection();
 
     const handleConnectTherapist = () => {
         // Navigate to therapist selection or booking page
@@ -60,7 +60,25 @@ export const ChatbotPage: React.FC = () => {
 
     const handleSendMessage = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!newMessage.trim() || !conversationId) return;
+        if (!newMessage.trim()) return;
+
+        // Auto-initialize if missing (e.g. failed on mount)
+        let currentConvId = conversationId;
+        if (!currentConvId) {
+            try {
+                const response = await api.post('/chat/conversations', {
+                    participants: ['bot'],
+                    type: 'direct'
+                });
+                currentConvId = response.data._id;
+                setConversationId(currentConvId);
+            } catch (err) {
+                console.error('Failed to recover conversation init', err);
+                return; // Still failed
+            }
+        }
+
+        if (!currentConvId) return;
 
         try {
             const content = newMessage;
@@ -75,14 +93,14 @@ export const ChatbotPage: React.FC = () => {
             setMessages(prev => [...prev, tempMsg]);
             setIsTyping(true);
 
-            await api.post(`/chat/conversations/${conversationId}/messages`, { content });
+            await api.post(`/chat/conversations/${currentConvId}/messages`, { content });
 
             let attempts = 0;
             const maxAttempts = 15;
             const pollInterval = setInterval(async () => {
                 attempts++;
                 try {
-                    const msgResponse = await api.get(`/chat/conversations/${conversationId}/messages`);
+                    const msgResponse = await api.get(`/chat/conversations/${currentConvId}/messages`);
                     const newMessages = msgResponse.data.reverse();
                     const lastMsg = newMessages[newMessages.length - 1];
 

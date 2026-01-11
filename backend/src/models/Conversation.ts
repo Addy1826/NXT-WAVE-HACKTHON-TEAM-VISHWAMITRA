@@ -20,4 +20,4 @@ const ConversationSchema: Schema = new Schema({
     lastMessageAt: { type: Date }
 }, { timestamps: true });
 
-export default mongoose.model<IConversation>('Conversation', ConversationSchema);
+export default (mongoose.models.Conversation as mongoose.Model<IConversation>) || mongoose.model<IConversation>('Conversation', ConversationSchema);

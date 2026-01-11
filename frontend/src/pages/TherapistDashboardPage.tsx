@@ -13,7 +13,7 @@ import {
     TrendingUp
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { useTherapistCrisisAlerts, type CrisisAlert } from '../hooks/useTherapistCrisisAlerts.ts';
+import { useTherapistCrisisAlerts } from '../hooks/useTherapistCrisisAlerts.ts';
 
 interface Appointment {
     id: string;
@@ -136,9 +136,7 @@ export const TherapistDashboardPage: React.FC = () => {
         return 'Yesterday';
     };
 
-    const handleJoinSession = (appointmentId: string) => {
-        navigate(`/therapist/session/${appointmentId}`);
-    };
+
 
     const handleAcceptCrisis = (alertId: string) => {
         acceptCrisisSession(alertId);

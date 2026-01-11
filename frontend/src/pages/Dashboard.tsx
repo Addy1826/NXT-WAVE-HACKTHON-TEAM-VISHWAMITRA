@@ -25,7 +25,7 @@ export const Dashboard: React.FC = () => {
         fetchAppointments();
     }, [user, navigate]);
 
-    const [appointments, setAppointments] = useState<any[]>([]);
+    const [, setAppointments] = useState<any[]>([]);
 
     const fetchAppointments = async () => {
         try {

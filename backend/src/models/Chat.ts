@@ -20,4 +20,4 @@ const ChatSchema: Schema = new Schema({
     metadata: { type: Schema.Types.Mixed }
 }, { timestamps: true });
 
-export default mongoose.model<IChat>('Chat', ChatSchema);
+export default (mongoose.models.Chat as mongoose.Model<IChat>) || mongoose.model<IChat>('Chat', ChatSchema);

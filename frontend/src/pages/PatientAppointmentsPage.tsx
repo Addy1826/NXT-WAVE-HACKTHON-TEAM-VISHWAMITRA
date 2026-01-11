@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Search, Star, Award, MapPin, Video, MessageSquare, Filter } from 'lucide-react';
+import { Search, Star, Award, MapPin, MessageSquare, Filter } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 interface Therapist {
@@ -125,10 +125,10 @@ export const PatientAppointmentsPage: React.FC = () => {
                     <Star
                         key={star}
                         className={`w-4 h-4 ${star <= Math.floor(rating)
-                                ? 'fill-yellow-400 text-yellow-400'
-                                : star - 0.5 <= rating
-                                    ? 'fill-yellow-200 text-yellow-400'
-                                    : 'text-gray-300'
+                            ? 'fill-yellow-400 text-yellow-400'
+                            : star - 0.5 <= rating
+                                ? 'fill-yellow-200 text-yellow-400'
+                                : 'text-gray-300'
                             }`}
                     />
                 ))}

@@ -24,7 +24,7 @@ export const useCrisisDetection = (): UseCrisisDetectionReturn => {
     const [crisisLevel, setCrisisLevel] = useState<number>(0);
     const [detectedKeywords, setDetectedKeywords] = useState<string[]>([]);
     const [showModal, setShowModal] = useState<boolean>(false);
-    const [socket, setSocket] = useState<Socket | null>(null);
+    const [_, setSocket] = useState<Socket | null>(null);
 
     useEffect(() => {
         // Initialize Socket.IO connection
