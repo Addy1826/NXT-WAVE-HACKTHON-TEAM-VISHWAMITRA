@@ -60,10 +60,11 @@ class MentalHealthServer {
         this.io = new SocketIOServer(this.server, {
             cors: {
                 origin: [
-                    process.env.FRONTEND_URL || "http://localhost:3000",
+                    "http://localhost:3000",
                     "http://localhost:5173",
-                    "http://localhost:5174"
-                ],
+                    "http://localhost:5174",
+                    process.env.FRONTEND_URL || ""
+                ].filter(Boolean),
                 methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
                 credentials: true
             },
@@ -108,10 +109,11 @@ class MentalHealthServer {
         // CORS configuration
         this.app.use(cors({
             origin: [
-                process.env.FRONTEND_URL || "http://localhost:3000",
+                "http://localhost:3000",
                 "http://localhost:5173",
-                "http://localhost:5174"
-            ],
+                "http://localhost:5174",
+                process.env.FRONTEND_URL || ""
+            ].filter(Boolean),
             credentials: true,
             optionsSuccessStatus: 200
         }));

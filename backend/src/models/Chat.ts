@@ -2,10 +2,10 @@ import mongoose, { Schema, Document } from 'mongoose';
 
 export interface IChat extends Document {
     conversationId: mongoose.Types.ObjectId;
-    sender: mongoose.Types.ObjectId;
+    sender: string;
     content: string;
     type: 'text' | 'image' | 'file' | 'system' | 'bot_response';
-    readBy: mongoose.Types.ObjectId[];
+    readBy: string[];
     metadata?: any;
     createdAt: Date;
     updatedAt: Date;
@@ -13,10 +13,10 @@ export interface IChat extends Document {
 
 const ChatSchema: Schema = new Schema({
     conversationId: { type: Schema.Types.ObjectId, ref: 'Conversation', required: true },
-    sender: { type: Schema.Types.ObjectId, ref: 'User', required: false }, // Allow null for bot
+    sender: { type: String, required: false }, // UUID or "bot"
     content: { type: String, required: true },
     type: { type: String, enum: ['text', 'image', 'file', 'system', 'bot_response'], default: 'text' },
-    readBy: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+    readBy: [{ type: String }],
     metadata: { type: Schema.Types.Mixed }
 }, { timestamps: true });
 

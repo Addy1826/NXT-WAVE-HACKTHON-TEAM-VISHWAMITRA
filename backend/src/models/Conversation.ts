@@ -1,10 +1,10 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
 export interface IConversation extends Document {
-    participants: mongoose.Types.ObjectId[];
-    adminId?: mongoose.Types.ObjectId; // Group admin (therapist)
-    isGroupChat: boolean; // Flag for group vs 1:1
-    groupName?: string; // Optional group name
+    participants: string[];
+    adminId?: string;
+    isGroupChat: boolean;
+    groupName?: string;
     lastMessage?: string;
     lastMessageAt?: Date;
     createdAt: Date;
@@ -12,9 +12,9 @@ export interface IConversation extends Document {
 }
 
 const ConversationSchema: Schema = new Schema({
-    participants: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+    participants: [{ type: String, required: true }], // UUIDs from Postgres
     isGroupChat: { type: Boolean, default: false },
-    adminId: { type: Schema.Types.ObjectId, ref: 'User' },
+    adminId: { type: String }, // UUID
     groupName: { type: String },
     lastMessage: { type: String },
     lastMessageAt: { type: Date }

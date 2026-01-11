@@ -8,6 +8,7 @@ import path from 'path';
 import fs from 'fs';
 
 import mongoose from 'mongoose';
+import prisma from '../config/prisma';
 
 // Load bot personality configuration
 const personalityConfigPath = path.join(__dirname, '../config/bot-personality.json');
@@ -30,19 +31,34 @@ export class ChatService {
         this.ML_SERVICE_URL = process.env.ML_SERVICE_URL || 'http://localhost:5000';
     }
 
-    async getUserConversations(userId: string): Promise<IConversation[]> {
+    async getUserConversations(userId: string): Promise<any[]> {
         if (mongoose.connection.readyState !== 1) {
             return localConversations.filter(c => c.participants.includes(userId)) as any;
         }
 
-        return await Conversation.find({ participants: userId })
-            .populate({
-                path: 'lastMessage',
-                populate: { path: 'sender', select: 'name avatar' }
-            })
-            .populate('participants', 'name avatar')
+        const conversations = await Conversation.find({ participants: userId })
             .sort({ updatedAt: -1 })
+            .lean()
             .exec();
+
+        // Populate participants using Prisma
+        const participantIds = Array.from(new Set(conversations.flatMap(c => c.participants)));
+        const users = await prisma.user.findMany({
+            where: { id: { in: participantIds } },
+            select: { id: true, name: true, role: true } // Add avatar if available in schema
+        });
+
+        const userMap = new Map(users.map(u => [u.id, u]));
+
+        // Combine data
+        return conversations.map(c => ({
+            ...c,
+            participants: c.participants.map(pid => {
+                if (pid === 'bot') return { _id: 'bot', name: 'AI Assistant', avatar: null };
+                const u = userMap.get(pid);
+                return u ? { _id: u.id, name: u.name, role: u.role } : { _id: pid, name: 'Unknown User' };
+            })
+        }));
     }
 
     async createConversation(participants: string[], type: 'direct' | 'group', groupName?: string, groupAdmin?: string): Promise<IConversation> {
@@ -190,7 +206,7 @@ export class ChatService {
                 const chat = {
                     _id: 'local_msg_' + Date.now(),
                     conversationId: data.conversationId,
-                    sender: data.userId === 'bot' ? null : data.userId,
+                    sender: data.userId === 'bot' ? 'bot' : data.userId,
                     content: data.content,
                     type: data.type,
                     metadata: data.metadata,
@@ -211,7 +227,7 @@ export class ChatService {
 
             const chat = new Chat({
                 conversationId: data.conversationId,
-                sender: data.userId === 'bot' ? null : data.userId,
+                sender: data.userId === 'bot' ? 'bot' : data.userId,
                 content: data.content,
                 type: data.type,
                 metadata: data.metadata
@@ -232,7 +248,7 @@ export class ChatService {
         }
     }
 
-    async getRecentMessages(conversationId: string, limit: number): Promise<IChat[]> {
+    async getRecentMessages(conversationId: string, limit: number): Promise<any[]> {
         if (mongoose.connection.readyState !== 1) {
             return localChats
                 .filter(c => c.conversationId === conversationId)
@@ -240,11 +256,34 @@ export class ChatService {
                 .slice(0, limit);
         }
 
-        return await Chat.find({ conversationId })
+        const messages = await Chat.find({ conversationId })
             .sort({ createdAt: -1 })
             .limit(limit)
-            .populate('sender', 'name avatar')
+            .lean()
             .exec();
+
+        // Populate sender details
+        const senderIds = Array.from(new Set(messages.map(m => m.sender).filter(s => s && s !== 'bot')));
+        const users = await prisma.user.findMany({
+            where: { id: { in: senderIds } },
+            select: { id: true, name: true }
+        });
+        const userMap = new Map(users.map(u => [u.id, u]));
+
+        return messages.map(m => {
+            let senderDetails = null;
+            if (m.sender === 'bot') {
+                senderDetails = { _id: 'bot', name: 'Mindora (AI)' };
+            } else if (m.sender) {
+                const u = userMap.get(m.sender);
+                senderDetails = u ? { _id: u.id, name: u.name } : { _id: m.sender, name: 'Unknown' };
+            }
+
+            return {
+                ...m,
+                sender: senderDetails
+            };
+        });
     }
 
     async generateBotResponse(message: string, analysis: any, conversationId: string): Promise<any> {
