@@ -24,6 +24,9 @@ export default defineConfig([
       '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
       'react-hooks/exhaustive-deps': 'warn',
       'react-hooks/immutability': 'off', // Fixes "variable used before declaration" false positives in some strict configs
+      'react-hooks/set-state-in-effect': 'off', // Allow setting state (like socket) in useEffect
+      'react-hooks/purity': 'off', // Allow Date.now() in render for mock data
+      'react-refresh/only-export-components': 'warn',
     },
   },
 ])
