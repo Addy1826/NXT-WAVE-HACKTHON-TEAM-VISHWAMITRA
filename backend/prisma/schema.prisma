@@ -66,10 +66,57 @@ model User {
   consentLogs       ConsentLog[]
   anonymousSession  AnonymousSession?
   moodLogs          MoodLog[]
+  crisisEvents      CrisisEvent[]
   
   @@index([email])
   @@index([role, accountStatus])
   @@map("users")
+}
+
+// ============================================================================
+// CRISIS ESCALATION & INTERVENTION
+// ============================================================================
+
+enum CrisisStatus {
+  PENDING
+  ESCALATED
+  RESOLVED
+  FALSE_POSITIVE
+  IGNORED
+}
+
+model CrisisEvent {
+  id              String       @id @default(uuid())
+  
+  userId          String
+  user            User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  conversationId  String?      // ID of the chat session where this occurred
+  
+  // Detection Data
+  crisisLevel     Int          // 1-10
+  sentimentScore  Float?       // -1.0 to 1.0
+  keywordsDetected String[]
+  
+  // Severity
+  urgency         String       // "low", "medium", "high", "critical"
+  requiresEscalation Boolean   @default(false)
+  
+  // Workflow
+  status          CrisisStatus @default(PENDING)
+  actionTaken     String?      // "notified_therapist", "called_emergency", "offered_resources"
+  
+  // Resolution
+  resolutionNotes String?      @db.Text
+  resolvedAt      DateTime?
+  resolvedBy      String?      // Therapist ID or System
+  
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  
+  @@index([userId, status])
+  @@index([crisisLevel])
+  @@map("crisis_events")
 }
 
 // ============================================================================

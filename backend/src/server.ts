@@ -2,6 +2,10 @@ import dotenv from 'dotenv';
 // Load environment variables immediately
 dotenv.config();
 
+import { validateEnv } from './config/validateEnv';
+// Validate Env before doing anything else
+validateEnv();
+
 import express from 'express';
 import { createServer } from 'http';
 import { NotificationService } from './services/notificationService';
@@ -11,7 +15,7 @@ import { connectDatabase } from './config/database';
 import { connectRedis } from './config/redis';
 import { errorHandler } from './middleware/errorHandler';
 import { auditLogger } from './middleware/auditLogger';
-import { encryptionMiddleware } from './middleware/encryption';
+// import { encryptionMiddleware } from './middleware/encryption'; // Removed: Fake security placeholder
 import { authMiddleware } from './middleware/auth';
 
 import { ChatService } from './services/chatService';
@@ -136,7 +140,7 @@ class MentalHealthServer {
 
         // Custom middleware
         this.app.use(auditLogger);
-        this.app.use(encryptionMiddleware);
+        // this.app.use(encryptionMiddleware); // Removed: Fake security placeholder
 
         // Health check endpoint (before auth)
         this.app.get('/health', (req, res) => {

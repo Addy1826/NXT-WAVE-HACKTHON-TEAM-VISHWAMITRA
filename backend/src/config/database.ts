@@ -20,8 +20,8 @@ export async function connectDatabase(): Promise<void> {
     const mongoUri = process.env.MONGODB_URI || process.env.DATABASE_URL;
 
     if (!mongoUri) {
-        logger.warn('⚠️ MongoDB URI missing. Chat history will not be saved. (Demo Mode)');
-        return;
+        logger.error('❌ CRITICAL: MongoDB URI missing.');
+        throw new Error('MongoDB URI is required.');
     }
 
     try {
@@ -42,8 +42,8 @@ export async function connectDatabase(): Promise<void> {
         });
 
     } catch (error) {
-        logger.warn('⚠️ MongoDB connection failed. Continuing without database. (Demo Mode)');
-        // Do not throw error so server continues to start
+        logger.error('❌ CRITICAL: MongoDB connection failed. Server cannot start.', error);
+        throw error;
     }
 }
 

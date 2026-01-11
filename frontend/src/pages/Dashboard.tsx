@@ -87,7 +87,7 @@ export const Dashboard: React.FC = () => {
             <div className="w-64 bg-white border-r border-slate-200 flex flex-col">
                 <div className="p-6">
                     <h1 className="text-2xl font-bold text-primary-600 flex items-center gap-2">
-                        MindfulAI
+                        Mindora
                     </h1>
                 </div>
 

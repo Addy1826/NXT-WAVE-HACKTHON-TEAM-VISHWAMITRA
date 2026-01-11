@@ -16,7 +16,7 @@ export const LandingPage: React.FC = () => {
                             <div className="bg-primary-600 p-2 rounded-lg shadow-md">
                                 <Heart className="h-6 w-6 text-white" />
                             </div>
-                            <span className="text-xl font-heading text-primary-900 tracking-tight">Serenity</span>
+                            <span className="text-xl font-heading text-primary-900 tracking-tight">Mindora</span>
                         </div>
                         <div className="hidden md:flex items-center space-x-8">
                             <a href="#features" className="text-gray-600 hover:text-primary-700 transition-colors">Features</a>
@@ -183,10 +183,10 @@ export const LandingPage: React.FC = () => {
                         <div className="bg-primary-900 p-1.5 rounded-lg">
                             <Heart className="h-5 w-5 text-white" />
                         </div>
-                        <span className="text-lg font-heading text-primary-900">Serenity</span>
+                        <span className="text-lg font-heading text-primary-900">Mindora</span>
                     </div>
                     <div className="text-gray-500 text-sm">
-                        © 2026 Serenity. Mental health support for everyone.
+                        © 2026 Mindora support for everyone.
                     </div>
                     <div className="flex gap-6">
                         <a href="#" className="text-gray-400 hover:text-primary-600 transition-colors">Privacy</a>

@@ -122,7 +122,7 @@ export const ChatbotPage: React.FC = () => {
                             <div className="p-3 bg-indigo-600 rounded-2xl shadow-lg shadow-indigo-200">
                                 <Bot className="w-8 h-8 text-white" />
                             </div>
-                            Serenity AI
+                            Mindora
                         </h1>
                         <p className="text-slate-500 mt-2 ml-1">Your 24/7 mental wellness companion.</p>
                     </div>
@@ -182,7 +182,7 @@ export const ChatbotPage: React.FC = () => {
                                 <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
                                 <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
                             </div>
-                            <span className="text-sm text-slate-400 animate-pulse">Serenity is typing...</span>
+                            <span className="text-sm text-slate-400 animate-pulse">Mindora is typing...</span>
                         </div>
                     )}
                     <div ref={messagesEndRef} />
@@ -207,7 +207,7 @@ export const ChatbotPage: React.FC = () => {
                         </button>
                     </form>
                     <p className="text-center text-xs text-slate-400 mt-4">
-                        Serenity AI is an automated assistant and may make mistakes. For medical emergencies, please call 911.
+                        Mindora is an automated assistant and may make mistakes. For medical emergencies, please call 911.
                     </p>
                 </div>
             </div>

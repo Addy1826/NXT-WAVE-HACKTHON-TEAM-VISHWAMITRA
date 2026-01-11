@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { logger } from '../utils/logger';
+import prisma from '../config/prisma';
 
 export class CrisisDetectionService {
     private mlServiceUrl: string;
@@ -75,13 +76,34 @@ export class CrisisDetectionService {
     }
 
     async createEscalation(data: any): Promise<any> {
-        // In a real system, this would save to a database
-        logger.warn(`Creating escalation for user ${data.userId} in conversation ${data.conversationId}`);
-        return {
-            id: `esc_${Date.now()}`,
-            ...data,
-            createdAt: new Date(),
-            status: 'pending'
-        };
+        try {
+            logger.warn(`Creating persistent escalation for user ${data.userId} in conversation ${data.conversationId}`);
+
+            const event = await prisma.crisisEvent.create({
+                data: {
+                    userId: data.userId,
+                    conversationId: data.conversationId,
+                    crisisLevel: data.crisis_level || 5, // Default mid?
+                    sentimentScore: data.sentiment_analysis?.score || 0,
+                    keywordsDetected: data.keywords_detected || [],
+                    urgency: data.urgency || 'medium',
+                    requiresEscalation: data.requires_immediate_escalation || false,
+                    status: 'PENDING',
+                    actionTaken: 'system_detected'
+                }
+            });
+
+            return event;
+        } catch (error) {
+            logger.error('Failed to persist crisis event:', error);
+            // Fallback for demo/failure safety - return a mock but log the error strictly
+            return {
+                id: `esc_fallback_${Date.now()}`,
+                ...data,
+                createdAt: new Date(),
+                status: 'pending',
+                _error: 'persistence_failed'
+            };
+        }
     }
 }

@@ -132,7 +132,7 @@ export const FloatingChatWidget: React.FC = () => {
                         <Bot className="w-6 h-6" />
                         <div className="absolute -bottom-1 -right-1 w-2.5 h-2.5 bg-green-400 rounded-full border-2 border-indigo-600 animate-pulse" />
                     </div>
-                    <span className="font-bold">Serenity AI</span>
+                    <span className="font-bold">Mindora</span>
                 </div>
                 <div className="flex items-center gap-2">
                     <button onClick={() => setIsExpanded(!isExpanded)} className="p-1 hover:bg-indigo-500 rounded transition-colors">
@@ -179,7 +179,7 @@ export const FloatingChatWidget: React.FC = () => {
                 {messages.length === 0 && (
                     <div className="flex flex-col items-center justify-center h-full text-center p-6 text-slate-500 space-y-3 opacity-60">
                         <Bot className="w-12 h-12 text-slate-300" />
-                        <p className="text-sm">Hi! I'm Serenity. I'm here to listen and support you. How are you feeling today?</p>
+                        <p className="text-sm">Hi! I'm Mindora. I'm here to listen and support you. How are you feeling today?</p>
                     </div>
                 )}
                 <div ref={messagesEndRef} />

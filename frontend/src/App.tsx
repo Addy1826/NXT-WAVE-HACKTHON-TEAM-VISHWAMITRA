@@ -39,9 +39,7 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
     return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
   }
 
-  // Allow mock token access for demo
-  const token = localStorage.getItem('token');
-  if (!isAuthenticated && !token) {
+  if (!isAuthenticated) {
     return <Navigate to="/login/patient" />;
   }
 
@@ -53,12 +51,8 @@ const TherapistRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
 
   if (isLoading) return <div>Loading...</div>;
 
-  // Strict check for therapist role (or demo token)
-  const token = localStorage.getItem('token');
-  const userStr = localStorage.getItem('user');
-  const cachedUser = userStr ? JSON.parse(userStr) : null;
-
-  if ((!isAuthenticated && !token) || (cachedUser?.role !== 'therapist' && user?.role !== 'therapist')) {
+  // Strict check for therapist role
+  if (!isAuthenticated || user?.role !== 'therapist') {
     return <Navigate to="/login/therapist" replace />;
   }
 

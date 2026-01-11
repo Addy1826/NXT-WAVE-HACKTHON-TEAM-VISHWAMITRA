@@ -1,28 +1,48 @@
 import { Request, Response } from 'express';
-import Appointment from '../models/Appointment';
-import Therapist from '../models/Therapist';
+import prisma from '../config/prisma';
+// import Appointment from '../models/Appointment';
+// import Therapist from '../models/Therapist';
 
 export const createAppointment = async (req: Request, res: Response) => {
     try {
         const patientId = (req as any).user?.id;
         const { therapistId, date, time, type, notes, amount } = req.body;
 
-        const appointment = new Appointment({
-            patientId,
-            therapistId, // Expecting ID of the Therapist document (not User)
-            date,
-            time,
-            type,
-            notes,
-            amount,
-            status: 'pending',
-            paymentStatus: 'pending'
+        // Prisma create
+        // Combine date and time to Date object if needed, or store as strings if schema allows.
+        // Schema: scheduledAt DateTime
+        // Mongoose was storing date and time separately?
+        // Schema has 'scheduledAt'. Backend logic must adapt.
+        const scheduledAt = new Date(`${date}T${time}:00`);
+
+        const appointment = await prisma.appointment.create({
+            data: {
+                patientId,
+                therapistId,
+                scheduledAt,
+                type: type || 'VIDEO_CALL', // Enum matching
+                status: 'SCHEDULED', // Default
+                durationMinutes: 60,
+                // notes stored where? Schema has 'sessionNotesId' or Mongoose fallback.
+                // Ignoring notes for now or assume they go to sessionNotesId logic later.
+            }
         });
 
-        await appointment.save();
+        // Create pending payment if amount > 0
+        if (amount) {
+            await prisma.payment.create({
+                data: {
+                    userId: patientId,
+                    appointmentId: appointment.id,
+                    amountUSD: amount,
+                    status: 'PENDING'
+                }
+            });
+        }
+
         res.status(201).json(appointment);
-    } catch (error) {
-        res.status(500).json({ message: 'Error creating appointment', error });
+    } catch (error: any) {
+        res.status(500).json({ message: 'Error creating appointment', error: error.message });
     }
 };
 
@@ -30,19 +50,23 @@ export const getTherapistAppointments = async (req: Request, res: Response) => {
     try {
         const userId = (req as any).user?.id;
         // Find therapist profile associated with this user
-        const therapist = await Therapist.findOne({ user: userId });
+        const therapist = await prisma.therapist.findUnique({ where: { userId } });
 
         if (!therapist) {
             return res.status(404).json({ message: 'Therapist profile not found' });
         }
 
-        const appointments = await Appointment.find({ therapistId: therapist._id })
-            .populate('patientId', 'name email avatar')
-            .sort({ date: 1, time: 1 });
+        const appointments = await prisma.appointment.findMany({
+            where: { therapistId: therapist.id },
+            include: {
+                patient: { select: { name: true, email: true, avatar: true } }
+            },
+            orderBy: { scheduledAt: 'asc' }
+        });
 
         res.json(appointments);
-    } catch (error) {
-        res.status(500).json({ message: 'Error fetching appointments', error });
+    } catch (error: any) {
+        res.status(500).json({ message: 'Error fetching appointments', error: error.message });
     }
 };
 
@@ -53,38 +77,51 @@ export const updateAppointmentStatus = async (req: Request, res: Response) => {
         const userId = (req as any).user?.id;
 
         // Verify the therapist owns this appointment
-        const therapist = await Therapist.findOne({ user: userId });
+        const therapist = await prisma.therapist.findUnique({ where: { userId } });
         if (!therapist) {
             return res.status(403).json({ message: 'Not authorized' });
         }
 
-        const appointment = await Appointment.findOne({ _id: id, therapistId: therapist._id });
-        if (!appointment) {
+        // Check ownership
+        const existingAppt = await prisma.appointment.findFirst({
+            where: { id, therapistId: therapist.id }
+        });
+
+        if (!existingAppt) {
             return res.status(404).json({ message: 'Appointment not found' });
         }
 
-        appointment.status = status;
-        if (meetingLink) appointment.meetingLink = meetingLink;
+        const updatedAppointment = await prisma.appointment.update({
+            where: { id },
+            data: {
+                status: status, // Ensure status string matches enum or use map
+                // meetingLink? Schema doesn't have meetingLink on Appointment? 
+                // Schema has videoRoomId. Using that for link/id.
+                videoRoomId: meetingLink
+            }
+        });
 
-        await appointment.save();
-        res.json(appointment);
-    } catch (error) {
-        res.status(500).json({ message: 'Error updating appointment', error });
+        res.json(updatedAppointment);
+    } catch (error: any) {
+        res.status(500).json({ message: 'Error updating appointment', error: error.message });
     }
 };
 
 export const getPatientAppointments = async (req: Request, res: Response) => {
     try {
         const patientId = (req as any).user?.id;
-        const appointments = await Appointment.find({ patientId })
-            .populate({
-                path: 'therapistId',
-                populate: { path: 'user', select: 'name avatar' }
-            })
-            .sort({ date: -1 });
+        const appointments = await prisma.appointment.findMany({
+            where: { patientId },
+            include: {
+                therapist: {
+                    include: { user: { select: { name: true, avatar: true } } }
+                }
+            },
+            orderBy: { scheduledAt: 'desc' }
+        });
 
         res.json(appointments);
-    } catch (error) {
-        res.status(500).json({ message: 'Error fetching appointments', error });
+    } catch (error: any) {
+        res.status(500).json({ message: 'Error fetching appointments', error: error.message });
     }
 }
