@@ -27,13 +27,14 @@ axiosInstance.interceptors.response.use(
     (error) => {
         if (error.response && error.response.status === 401) {
             // Token expired or invalid
-            localStorage.removeItem('token');
-            localStorage.removeItem('user');
+            console.error("[API] 401 Unauthorized received. The token might be invalid or expired.");
+            // We are temporarily disabling automatic blocking to debug the redirect loop.
+            // localStorage.removeItem('token');
+            // localStorage.removeItem('user');
 
-            // Redirect to login if not already there
-            if (!window.location.pathname.includes('/login')) {
-                window.location.href = '/login/patient';
-            }
+            // if (!window.location.pathname.includes('/login')) {
+            //      window.location.href = '/login/patient';
+            // }
         }
         return Promise.reject(error);
     }
