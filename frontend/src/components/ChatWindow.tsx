@@ -29,8 +29,21 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ conversationId, onVideoC
     const { user, token } = useAuth();
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
+    const scrollToBottom = () => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    };
+
+    const fetchMessages = async () => {
+        try {
+            const response = await api.get(`/chat/conversations/${conversationId}/messages`);
+            setMessages(response.data.reverse()); // Assuming API returns newest first
+            scrollToBottom();
+        } catch (error) {
+            console.error('Failed to fetch messages', error);
+        }
+    };
+
     useEffect(() => {
-        // Initialize Socket.IO
         // Initialize Socket.IO
         const newSocket = io('http://localhost:5000', {
             auth: { token },
@@ -52,20 +65,6 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ conversationId, onVideoC
             newSocket.disconnect();
         };
     }, [conversationId, token]);
-
-    const fetchMessages = async () => {
-        try {
-            const response = await api.get(`/chat/conversations/${conversationId}/messages`);
-            setMessages(response.data.reverse()); // Assuming API returns newest first
-            scrollToBottom();
-        } catch (error) {
-            console.error('Failed to fetch messages', error);
-        }
-    };
-
-    const scrollToBottom = () => {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    };
 
     const handleSendMessage = (e: React.FormEvent) => {
         e.preventDefault();

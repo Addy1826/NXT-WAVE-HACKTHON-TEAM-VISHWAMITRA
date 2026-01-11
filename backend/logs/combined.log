@@ -3001,3 +3001,77 @@
 {"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mSocket connection attempt: XvYT8W_7NUciWRm7AAAE\u001b[39m","timestamp":"2026-01-11 11:40:36:4036"}
 {"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mUser connected: XvYT8W_7NUciWRm7AAAE\u001b[39m","timestamp":"2026-01-11 11:40:36:4036"}
 {"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mPOST /api/chat/conversations\u001b[39m","timestamp":"2026-01-11 11:40:40:4040"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m✅ Environment variables validated successfully.\u001b[39m","timestamp":"2026-01-11 11:42:15:4215"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m✅ Gemini AI service initialized successfully\u001b[39m","timestamp":"2026-01-11 11:42:20:4220"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32m✅ Gemini AI service initialized successfully\u001b[39m","timestamp":"2026-01-11 11:42:20:4220"}
+{"level":"\u001b[31merror\u001b[39m","message":"\u001b[31m❌ CRITICAL: MongoDB connection failed. Server cannot start. Could not connect to any servers in your MongoDB Atlas cluster. One common reason is that you're trying to access the database from an IP that isn't whitelisted. Make sure your current IP address is on your Atlas cluster's IP whitelist: https://www.mongodb.com/docs/atlas/security-whitelist/\u001b[39m","reason":{"commonWireVersion":0,"compatible":true,"heartbeatFrequencyMS":10000,"localThresholdMS":15,"logicalSessionTimeoutMinutes":null,"maxElectionId":null,"maxSetVersion":null,"servers":{},"setName":"atlas-urmlci-shard-0","stale":false,"type":"ReplicaSetNoPrimary"},"stack":"MongooseServerSelectionError: Could not connect to any servers in your MongoDB Atlas cluster. One common reason is that you're trying to access the database from an IP that isn't whitelisted. Make sure your current IP address is on your Atlas cluster's IP whitelist: https://www.mongodb.com/docs/atlas/security-whitelist/\n    at _handleConnectionErrors (E:\\Projects_\\Hackathon\\Nxvwave Buildathon\\NXT-WAVE-HACKTHON-TEAM-VISHWAMITRA\\node_modules\\mongoose\\lib\\connection.js:816:11)\n    at NativeConnection.openUri (E:\\Projects_\\Hackathon\\Nxvwave Buildathon\\NXT-WAVE-HACKTHON-TEAM-VISHWAMITRA\\node_modules\\mongoose\\lib\\connection.js:791:11)\n    at async connectDatabase (E:\\Projects_\\Hackathon\\Nxvwave Buildathon\\NXT-WAVE-HACKTHON-TEAM-VISHWAMITRA\\backend\\src\\config\\database.ts:28:9)\n    at async MentalHealthServer.start (E:\\Projects_\\Hackathon\\Nxvwave Buildathon\\NXT-WAVE-HACKTHON-TEAM-VISHWAMITRA\\backend\\src\\server.ts:590:17)","timestamp":"2026-01-11 11:42:30:4230"}
+{"level":"\u001b[33mwarn\u001b[39m","message":"\u001b[33mDatabase connection failed. Starting in non-persistent mode.\u001b[39m","timestamp":"2026-01-11 11:42:30:4230"}
+{"level":"\u001b[31merror\u001b[39m","message":"\u001b[31mCould not connect to any servers in your MongoDB Atlas cluster. One common reason is that you're trying to access the database from an IP that isn't whitelisted. Make sure your current IP address is on your Atlas cluster's IP whitelist: https://www.mongodb.com/docs/atlas/security-whitelist/\u001b[39m","reason":{"commonWireVersion":0,"compatible":true,"heartbeatFrequencyMS":10000,"localThresholdMS":15,"logicalSessionTimeoutMinutes":null,"maxElectionId":null,"maxSetVersion":null,"servers":{},"setName":"atlas-urmlci-shard-0","stale":false,"type":"ReplicaSetNoPrimary"},"stack":"MongooseServerSelectionError: Could not connect to any servers in your MongoDB Atlas cluster. One common reason is that you're trying to access the database from an IP that isn't whitelisted. Make sure your current IP address is on your Atlas cluster's IP whitelist: https://www.mongodb.com/docs/atlas/security-whitelist/\n    at _handleConnectionErrors (E:\\Projects_\\Hackathon\\Nxvwave Buildathon\\NXT-WAVE-HACKTHON-TEAM-VISHWAMITRA\\node_modules\\mongoose\\lib\\connection.js:816:11)\n    at NativeConnection.openUri (E:\\Projects_\\Hackathon\\Nxvwave Buildathon\\NXT-WAVE-HACKTHON-TEAM-VISHWAMITRA\\node_modules\\mongoose\\lib\\connection.js:791:11)\n    at async connectDatabase (E:\\Projects_\\Hackathon\\Nxvwave Buildathon\\NXT-WAVE-HACKTHON-TEAM-VISHWAMITRA\\backend\\src\\config\\database.ts:28:9)\n    at async MentalHealthServer.start (E:\\Projects_\\Hackathon\\Nxvwave Buildathon\\NXT-WAVE-HACKTHON-TEAM-VISHWAMITRA\\backend\\src\\server.ts:590:17)","timestamp":"2026-01-11 11:42:30:4230"}
+{"level":"\u001b[33mwarn\u001b[39m","message":"\u001b[33m⚠️ Redis disabled or URL missing. Caching turned off (Demo Mode).\u001b[39m","timestamp":"2026-01-11 11:42:30:4230"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mMental Health Server running on port 3001\u001b[39m","timestamp":"2026-01-11 11:42:30:4230"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mEnvironment: development\u001b[39m","timestamp":"2026-01-11 11:42:30:4230"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mFrontend URL: http://localhost:5173\u001b[39m","timestamp":"2026-01-11 11:42:30:4230"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mSocket connection attempt: LwWTUFOFMDgyKjfLAAAB\u001b[39m","timestamp":"2026-01-11 11:42:30:4230"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mUser connected: LwWTUFOFMDgyKjfLAAAB\u001b[39m","timestamp":"2026-01-11 11:42:30:4230"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mUser disconnected: LwWTUFOFMDgyKjfLAAAB, reason: transport close\u001b[39m","timestamp":"2026-01-11 11:43:07:437"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mGET /api/chat/conversations\u001b[39m","timestamp":"2026-01-11 11:47:13:4713"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mGET /api/therapists/appointments\u001b[39m","timestamp":"2026-01-11 11:47:13:4713"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mGET /api/chat/conversations\u001b[39m","timestamp":"2026-01-11 11:47:13:4713"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mGET /api/therapists/appointments\u001b[39m","timestamp":"2026-01-11 11:47:13:4713"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mGET /api/chat/conversations\u001b[39m","timestamp":"2026-01-11 11:47:35:4735"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mGET /api/therapists/appointments\u001b[39m","timestamp":"2026-01-11 11:47:35:4735"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mGET /api/chat/conversations\u001b[39m","timestamp":"2026-01-11 11:47:35:4735"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mGET /api/therapists/appointments\u001b[39m","timestamp":"2026-01-11 11:47:35:4735"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mGET /api/chat/conversations\u001b[39m","timestamp":"2026-01-11 11:48:26:4826"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mGET /api/therapists/appointments\u001b[39m","timestamp":"2026-01-11 11:48:26:4826"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mGET /api/chat/conversations\u001b[39m","timestamp":"2026-01-11 11:48:26:4826"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mGET /api/therapists/appointments\u001b[39m","timestamp":"2026-01-11 11:48:26:4826"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mGET /api/chat/conversations\u001b[39m","timestamp":"2026-01-11 11:48:36:4836"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mGET /api/therapists/appointments\u001b[39m","timestamp":"2026-01-11 11:48:36:4836"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mGET /api/chat/conversations\u001b[39m","timestamp":"2026-01-11 11:48:36:4836"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mGET /api/therapists/appointments\u001b[39m","timestamp":"2026-01-11 11:48:36:4836"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mPOST /api/chat/conversations\u001b[39m","timestamp":"2026-01-11 11:48:38:4838"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mPOST /api/chat/conversations\u001b[39m","timestamp":"2026-01-11 11:48:38:4838"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mSocket connection attempt: kZDkYe1R0v0cciBHAAAE\u001b[39m","timestamp":"2026-01-11 11:48:38:4838"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mUser connected: kZDkYe1R0v0cciBHAAAE\u001b[39m","timestamp":"2026-01-11 11:48:38:4838"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mUser disconnected: kZDkYe1R0v0cciBHAAAE, reason: client namespace disconnect\u001b[39m","timestamp":"2026-01-11 11:48:39:4839"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mGET /api/chat/conversations\u001b[39m","timestamp":"2026-01-11 11:48:39:4839"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mGET /api/therapists/appointments\u001b[39m","timestamp":"2026-01-11 11:48:39:4839"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mGET /api/chat/conversations\u001b[39m","timestamp":"2026-01-11 11:48:39:4839"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mGET /api/therapists/appointments\u001b[39m","timestamp":"2026-01-11 11:48:39:4839"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mGET /api/chat/conversations\u001b[39m","timestamp":"2026-01-11 11:48:58:4858"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mGET /api/therapists/appointments\u001b[39m","timestamp":"2026-01-11 11:48:58:4858"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mGET /api/chat/conversations\u001b[39m","timestamp":"2026-01-11 11:48:58:4858"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mGET /api/therapists/appointments\u001b[39m","timestamp":"2026-01-11 11:48:58:4858"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mGET /api/chat/conversations\u001b[39m","timestamp":"2026-01-11 11:49:06:496"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mGET /api/therapists/appointments\u001b[39m","timestamp":"2026-01-11 11:49:06:496"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mGET /api/chat/conversations\u001b[39m","timestamp":"2026-01-11 11:49:06:496"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mGET /api/therapists/appointments\u001b[39m","timestamp":"2026-01-11 11:49:06:496"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mSocket connection attempt: uNQR0ZrAxSZ-5qRDAAAH\u001b[39m","timestamp":"2026-01-11 11:52:41:5241"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mUser connected: uNQR0ZrAxSZ-5qRDAAAH\u001b[39m","timestamp":"2026-01-11 11:52:41:5241"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mUser disconnected: uNQR0ZrAxSZ-5qRDAAAH, reason: client namespace disconnect\u001b[39m","timestamp":"2026-01-11 11:53:12:5312"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mGET /api/appointments/therapist\u001b[39m","timestamp":"2026-01-11 11:53:28:5328"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mGET /api/appointments/therapist\u001b[39m","timestamp":"2026-01-11 11:53:28:5328"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mGET /api/therapists/my-patients\u001b[39m","timestamp":"2026-01-11 11:53:46:5346"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mGET /api/therapists/my-patients\u001b[39m","timestamp":"2026-01-11 11:53:46:5346"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mSocket connection attempt: HRDV6jxSm6mkCjcKAAAK\u001b[39m","timestamp":"2026-01-11 11:53:51:5351"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mUser connected: HRDV6jxSm6mkCjcKAAAK\u001b[39m","timestamp":"2026-01-11 11:53:51:5351"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mSocket connection attempt: 2_f86W8WbTSJbg0RAAAN\u001b[39m","timestamp":"2026-01-11 12:11:23:1123"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mUser connected: 2_f86W8WbTSJbg0RAAAN\u001b[39m","timestamp":"2026-01-11 12:11:23:1123"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mUser disconnected: HRDV6jxSm6mkCjcKAAAK, reason: client namespace disconnect\u001b[39m","timestamp":"2026-01-11 12:11:28:1128"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mGET /api/therapists/my-patients\u001b[39m","timestamp":"2026-01-11 12:11:28:1128"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mGET /api/therapists/my-patients\u001b[39m","timestamp":"2026-01-11 12:11:28:1128"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mGET /api/appointments/therapist\u001b[39m","timestamp":"2026-01-11 12:11:30:1130"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mGET /api/appointments/therapist\u001b[39m","timestamp":"2026-01-11 12:11:30:1130"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mSocket connection attempt: OV4Bc61Cp2GNyJueAAAQ\u001b[39m","timestamp":"2026-01-11 12:11:35:1135"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mUser connected: OV4Bc61Cp2GNyJueAAAQ\u001b[39m","timestamp":"2026-01-11 12:11:35:1135"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mUser disconnected: OV4Bc61Cp2GNyJueAAAQ, reason: client namespace disconnect\u001b[39m","timestamp":"2026-01-11 12:11:37:1137"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mUser disconnected: 2_f86W8WbTSJbg0RAAAN, reason: client namespace disconnect\u001b[39m","timestamp":"2026-01-11 12:12:02:122"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mGET /api/therapists/my-patients\u001b[39m","timestamp":"2026-01-11 12:12:02:122"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mGET /api/therapists/my-patients\u001b[39m","timestamp":"2026-01-11 12:12:02:122"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mGET /api/appointments/therapist\u001b[39m","timestamp":"2026-01-11 12:12:03:123"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mGET /api/appointments/therapist\u001b[39m","timestamp":"2026-01-11 12:12:03:123"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mGET /api/therapists/profile\u001b[39m","timestamp":"2026-01-11 12:12:08:128"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mGET /api/therapists/profile\u001b[39m","timestamp":"2026-01-11 12:12:08:128"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mSocket connection attempt: oihin7JhUX7X-ELjAAAT\u001b[39m","timestamp":"2026-01-11 12:12:10:1210"}
+{"level":"\u001b[32minfo\u001b[39m","message":"\u001b[32mUser connected: oihin7JhUX7X-ELjAAAT\u001b[39m","timestamp":"2026-01-11 12:12:10:1210"}

@@ -16,15 +16,6 @@ export const Dashboard: React.FC = () => {
     const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);
     const [activeTab, setActiveTab] = useState<'home' | 'chat' | 'appointments' | 'profile'>('home');
 
-    useEffect(() => {
-        if (user?.role === 'therapist') {
-            navigate('/therapist/dashboard', { replace: true });
-            return;
-        }
-        fetchConversations();
-        fetchAppointments();
-    }, [user, navigate]);
-
     const [, setAppointments] = useState<any[]>([]);
 
     const fetchAppointments = async () => {
@@ -51,6 +42,15 @@ export const Dashboard: React.FC = () => {
             console.error('Failed to fetch conversations', error);
         }
     };
+
+    useEffect(() => {
+        if (user?.role === 'therapist') {
+            navigate('/therapist/dashboard', { replace: true });
+            return;
+        }
+        fetchConversations();
+        fetchAppointments();
+    }, [user, navigate]);
 
     const [selectedTherapist, setSelectedTherapist] = useState<any | null>(null);
 
