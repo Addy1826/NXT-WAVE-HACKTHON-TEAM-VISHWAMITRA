@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Users, ArrowLeft, Mail, Lock, ShieldCheck, FileBadge, User } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import api from '../services/api';
+import { Users, ArrowLeft, Mail, Lock, ShieldCheck, FileBadge, User, AlertCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export const TherapistSignupPage: React.FC = () => {
@@ -13,15 +15,32 @@ export const TherapistSignupPage: React.FC = () => {
     });
     const [isLoading, setIsLoading] = useState(false);
 
+    const [error, setError] = useState('');
+    const { login } = useAuth();
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        setError('');
         setIsLoading(true);
-        // Mock API call
-        setTimeout(() => {
-            localStorage.setItem('token', 'demo_therapist_token');
-            localStorage.setItem('user', JSON.stringify({ role: 'therapist', name: 'Dr. ' + formData.name }));
+        try {
+            // Note: licenseNumber might need to be handled by backend specifically
+            const response = await api.post('/auth/register', {
+                name: formData.name,
+                email: formData.email,
+                password: formData.password,
+                role: 'therapist',
+                licenseNumber: formData.licenseNumber
+            });
+            login(response.data.token, response.data.user);
             navigate('/therapist/dashboard');
-        }, 1500);
+        } catch (err: any) {
+            const errorMessage = err.response?.data?.message
+                || err.response?.data?.error
+                || 'Failed to submit application';
+            setError(errorMessage);
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
@@ -47,6 +66,13 @@ export const TherapistSignupPage: React.FC = () => {
                     </div>
                     <p className="text-gray-600">Apply to join our network of certified professionals.</p>
                 </div>
+
+                {error && (
+                    <div className="mb-6 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm flex items-center">
+                        <AlertCircle className="w-4 h-4 mr-2" />
+                        {error}
+                    </div>
+                )}
 
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div className="space-y-2">

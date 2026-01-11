@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Heart, ArrowLeft, Mail, Lock, User, CheckCircle } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import api from '../services/api';
+import { Heart, ArrowLeft, Mail, Lock, User, CheckCircle, AlertCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export const PatientSignupPage: React.FC = () => {
@@ -13,16 +15,37 @@ export const PatientSignupPage: React.FC = () => {
     });
     const [isLoading, setIsLoading] = useState(false);
 
+    const [error, setError] = useState('');
+    const { login } = useAuth();
+
+    // Check if password and confirmPassword match
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        setError('');
+
+        if (formData.password !== formData.confirmPassword) {
+            setError('Passwords do not match');
+            return;
+        }
+
         setIsLoading(true);
-        // Mock API call
-        setTimeout(() => {
-            // Auto login after signup
-            localStorage.setItem('token', 'mock_patient_token');
-            localStorage.setItem('user', JSON.stringify({ role: 'patient', name: formData.name }));
+        try {
+            const response = await api.post('/auth/register', {
+                name: formData.name,
+                email: formData.email,
+                password: formData.password,
+                role: 'patient'
+            });
+            login(response.data.token, response.data.user);
             navigate('/dashboard');
-        }, 1500);
+        } catch (err: any) {
+            const errorMessage = err.response?.data?.message
+                || err.response?.data?.error
+                || 'Failed to create account';
+            setError(errorMessage);
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
@@ -49,6 +72,13 @@ export const PatientSignupPage: React.FC = () => {
                     <h1 className="text-2xl font-heading text-primary-900 mb-2">Create Account</h1>
                     <p className="text-gray-600">Join our supportive community today.</p>
                 </div>
+
+                {error && (
+                    <div className="mb-6 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm flex items-center">
+                        <AlertCircle className="w-4 h-4 mr-2" />
+                        {error}
+                    </div>
+                )}
 
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div className="space-y-2">

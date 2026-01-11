@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Users, ArrowLeft, Mail, Lock, ShieldCheck } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import api from '../services/api';
+import { Users, ArrowLeft, Mail, Lock, ShieldCheck, AlertCircle } from 'lucide-react';
 
 export const TherapistLoginPage: React.FC = () => {
     const navigate = useNavigate();
@@ -8,16 +10,33 @@ export const TherapistLoginPage: React.FC = () => {
     const [password, setPassword] = useState('');
     const [isLoading, setIsLoading] = useState(false);
 
-    const handleLogin = (e: React.FormEvent) => {
+    const [error, setError] = useState('');
+    const { login } = useAuth();
+
+    const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
+        setError('');
         setIsLoading(true);
 
-        // Mock login delay using existing demo logic
-        setTimeout(() => {
-            localStorage.setItem('token', 'demo_therapist_token');
-            localStorage.setItem('user', JSON.stringify({ role: 'therapist', name: 'Dr. Sarah' }));
+        try {
+            const response = await api.post('/auth/login', { email, password });
+
+            if (response.data.user.role !== 'therapist') {
+                // Convert to patient dashboard if they are a patient
+                if (response.data.user.role === 'patient') {
+                    login(response.data.token, response.data.user);
+                    navigate('/dashboard');
+                    return;
+                }
+            }
+
+            login(response.data.token, response.data.user);
             navigate('/therapist/dashboard');
-        }, 1000);
+        } catch (err: any) {
+            setError(err.response?.data?.error || 'Failed to login');
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
@@ -41,6 +60,13 @@ export const TherapistLoginPage: React.FC = () => {
                     </div>
                     <p className="text-gray-600">Secure access for verified specialists.</p>
                 </div>
+
+                {error && (
+                    <div className="mb-6 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm flex items-center">
+                        <AlertCircle className="w-4 h-4 mr-2" />
+                        {error}
+                    </div>
+                )}
 
                 <form onSubmit={handleLogin} className="space-y-6">
                     <div className="space-y-2">

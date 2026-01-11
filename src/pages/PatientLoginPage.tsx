@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Heart, ArrowLeft, Mail, Lock } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import api from '../services/api';
+import { Heart, ArrowLeft, Mail, Lock, AlertCircle } from 'lucide-react';
 
 export const PatientLoginPage: React.FC = () => {
     const navigate = useNavigate();
@@ -8,17 +10,38 @@ export const PatientLoginPage: React.FC = () => {
     const [password, setPassword] = useState('');
     const [isLoading, setIsLoading] = useState(false);
 
-    const handleLogin = (e: React.FormEvent) => {
+    const [error, setError] = useState('');
+    const { login } = useAuth();
+    // import api from '../services/api'; // I need to make sure I add the import at the top too.
+
+    const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
+        setError('');
         setIsLoading(true);
 
-        // Mock login delay
-        setTimeout(() => {
-            // Mock successful login
-            localStorage.setItem('token', 'mock_patient_token');
-            localStorage.setItem('user', JSON.stringify({ role: 'patient', name: 'User' }));
+        try {
+            const response = await api.post('/auth/login', { email, password });
+
+            // Check if user is actually a patient if you want to restrict login
+            if (response.data.user.role !== 'patient') {
+                // Optional: Allow them but redirect elsewhere, or block. 
+                // For now, let's assume we want to let them in but maybe warn or just proceed.
+                // But the UI is specific to patients so maybe we should check.
+                if (response.data.user.role === 'therapist') {
+                    // Redirect therapist to their dashboard if they accidentally login here?
+                    login(response.data.token, response.data.user);
+                    navigate('/therapist/dashboard');
+                    return;
+                }
+            }
+
+            login(response.data.token, response.data.user);
             navigate('/dashboard');
-        }, 1000);
+        } catch (err: any) {
+            setError(err.response?.data?.error || 'Failed to login');
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
@@ -42,6 +65,13 @@ export const PatientLoginPage: React.FC = () => {
                     <h1 className="text-2xl font-heading text-primary-900 mb-2">Welcome Back</h1>
                     <p className="text-gray-600">Sign in to your personal space.</p>
                 </div>
+
+                {error && (
+                    <div className="mb-6 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm flex items-center">
+                        <AlertCircle className="w-4 h-4 mr-2" />
+                        {error}
+                    </div>
+                )}
 
                 <form onSubmit={handleLogin} className="space-y-6">
                     <div className="space-y-2">

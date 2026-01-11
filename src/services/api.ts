@@ -19,6 +19,26 @@ axiosInstance.interceptors.request.use(
     (error) => Promise.reject(error)
 );
 
+// Add a response interceptor to handle 401 and other global errors
+axiosInstance.interceptors.response.use(
+    (response) => {
+        return response;
+    },
+    (error) => {
+        if (error.response && error.response.status === 401) {
+            // Token expired or invalid
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+
+            // Redirect to login if not already there
+            if (!window.location.pathname.includes('/login')) {
+                window.location.href = '/login/patient';
+            }
+        }
+        return Promise.reject(error);
+    }
+);
+
 const api = {
     // Expose axios methods
     get: axiosInstance.get,
