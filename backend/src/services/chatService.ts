@@ -5,9 +5,7 @@ import { GeminiService } from './geminiService';
 
 import mongoose from 'mongoose';
 
-// In-memory storage
-const localChats: any[] = [];
-const localConversations: any[] = [];
+// In-memory storage removed - fail fast if database unavailable
 
 export class ChatService {
     private geminiService: GeminiService;
@@ -17,10 +15,6 @@ export class ChatService {
     }
 
     async getUserConversations(userId: string): Promise<IConversation[]> {
-        if (mongoose.connection.readyState !== 1) {
-            return localConversations.filter(c => c.participants.includes(userId)) as any;
-        }
-
         return await Conversation.find({ participants: userId })
             .populate({
                 path: 'lastMessage',
@@ -32,20 +26,6 @@ export class ChatService {
     }
 
     async createConversation(participants: string[], type: 'direct' | 'group', groupName?: string, groupAdmin?: string): Promise<IConversation> {
-        if (mongoose.connection.readyState !== 1) {
-            const conv = {
-                _id: 'local_conv_' + Date.now(),
-                participants,
-                type,
-                groupName,
-                groupAdmin,
-                createdAt: new Date(),
-                updatedAt: new Date()
-            } as any;
-            localConversations.push(conv);
-            return conv;
-        }
-
         // For direct chats, check if one already exists
         if (type === 'direct' && participants.length === 2) {
             const existing = await Conversation.findOne({
@@ -67,29 +47,6 @@ export class ChatService {
 
     async saveMessage(data: { conversationId: string; userId: string; content: string; type: string; timestamp: Date; metadata?: any }): Promise<IChat> {
         try {
-            if (mongoose.connection.readyState !== 1) {
-                const chat = {
-                    _id: 'local_msg_' + Date.now(),
-                    conversationId: data.conversationId,
-                    sender: data.userId === 'bot' ? null : data.userId,
-                    content: data.content,
-                    type: data.type,
-                    metadata: data.metadata,
-                    createdAt: new Date(),
-                    updatedAt: new Date()
-                } as any;
-                localChats.push(chat);
-
-                // Update local conversation
-                const convIndex = localConversations.findIndex(c => c._id === data.conversationId);
-                if (convIndex !== -1) {
-                    localConversations[convIndex].lastMessage = chat;
-                    localConversations[convIndex].updatedAt = new Date();
-                }
-
-                return chat;
-            }
-
             const chat = new Chat({
                 conversationId: data.conversationId,
                 sender: data.userId === 'bot' ? null : data.userId, // Handle bot user
@@ -108,19 +65,12 @@ export class ChatService {
 
             return chat;
         } catch (error) {
-            logger.error('Error saving message:', error);
-            throw error;
+            logger.error('Error saving message to database:', error);
+            throw new Error('Database unavailable: Failed to save message');
         }
     }
 
     async getRecentMessages(conversationId: string, limit: number): Promise<IChat[]> {
-        if (mongoose.connection.readyState !== 1) {
-            return localChats
-                .filter(c => c.conversationId === conversationId)
-                .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
-                .slice(0, limit);
-        }
-
         return await Chat.find({ conversationId })
             .sort({ createdAt: -1 })
             .limit(limit)

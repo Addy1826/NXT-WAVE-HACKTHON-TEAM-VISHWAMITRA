@@ -5,6 +5,7 @@ dotenv.config();
 import express from 'express';
 import { createServer } from 'http';
 import { NotificationService } from './services/notificationService';
+import { verifyJWT } from './utils/jwt';
 
 import logger from './utils/logger';
 import { connectDatabase } from './config/database';
@@ -246,13 +247,13 @@ class MentalHealthServer {
                     return next(new Error('Authentication token required'));
                 }
 
-                // Verify token and get user info (implement proper JWT verification)
-                // const user = await verifyJWT(token);
-                // (socket as any).userId = user.id;
-                // (socket as any).userRole = user.role;
+                // Verify token and get user info
+                const user = verifyJWT(token);
+                (socket as any).userId = user.userId;
+                (socket as any).userRole = user.role;
+                (socket as any).userEmail = user.email;
 
-                // For now, just log the connection
-                logger.info(`Socket connection attempt: ${socket.id}`);
+                logger.info(`Socket authenticated: ${socket.id} - User: ${user.userId} (${user.role})`);
                 next();
             } catch (error) {
                 logger.error('Socket authentication failed:', error);
