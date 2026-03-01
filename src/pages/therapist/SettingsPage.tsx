@@ -185,7 +185,7 @@ export const SettingsPage: React.FC = () => {
                                         </div>
                                         <div>
                                             <h3 className="font-bold text-slate-900">SMS Alerts</h3>
-                                            <p className="text-sm text-slate-500 mt-1">Critical alerts only (cancellations <24hrs, emergency requests).</p>
+                                            <p className="text-sm text-slate-500 mt-1">Critical alerts only (cancellations &lt;24hrs, emergency requests).</p>
                                         </div>
                                     </div>
                                     <Toggle enabled={smsNotifs} onChange={setSmsNotifs} />
