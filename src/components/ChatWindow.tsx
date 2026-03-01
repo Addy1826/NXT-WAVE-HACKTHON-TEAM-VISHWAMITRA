@@ -45,7 +45,8 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ conversationId, onVideoC
 
     useEffect(() => {
         // Initialize Socket.IO
-        const newSocket = io('http://localhost:5000', {
+        const socketUrl = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:3001';
+        const newSocket = io(socketUrl, {
             auth: { token },
             transports: ['websocket']
         });

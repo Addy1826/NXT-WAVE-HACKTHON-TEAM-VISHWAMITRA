@@ -1,7 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Wind, Square, Activity, X } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Wind, Square, Activity, ArrowLeft, Maximize2 } from 'lucide-react';
+
+const STAGGER_CHILD_VARIANTS = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0, transition: { type: "spring" as const, stiffness: 300, damping: 24 } }
+};
 
 type ExerciseType = 'box' | '478' | 'grounding';
 
@@ -12,43 +16,47 @@ interface Exercise {
     icon: React.ElementType;
     color: string;
     instruction: string;
+    theme: string;
 }
 
 const exercises: Exercise[] = [
     {
         id: 'box',
         title: 'Box Breathing',
-        description: 'Focus and stress relief. Navy SEAL technique.',
+        description: 'Navy SEAL technique for intense focus and rapid stress relief.',
         instruction: 'Inhale (4s) → Hold (4s) → Exhale (4s) → Hold (4s)',
         icon: Square,
-        color: 'bg-blue-500'
+        color: 'from-blue-500 to-indigo-600',
+        theme: 'bg-indigo-950'
     },
     {
         id: '478',
         title: '4-7-8 Relaxation',
-        description: 'Deep sleep and anxiety relief.',
+        description: 'Promotes deep sleep and significant anxiety reduction.',
         instruction: 'Inhale (4s) → Hold (7s) → Exhale (8s)',
         icon: Wind,
-        color: 'bg-indigo-500'
+        color: 'from-fuchsia-500 to-purple-600',
+        theme: 'bg-fuchsia-950'
     },
     {
         id: 'grounding',
         title: 'Grounding Wave',
-        description: 'Panic attack management.',
-        instruction: 'Rhythmic 5-5-5 breathing pattern.',
+        description: 'Designed for panic attack management and physiological resetting.',
+        instruction: 'Rhythmic 5-5-5 continuous breathing pattern.',
         icon: Activity,
-        color: 'bg-teal-500'
+        color: 'from-teal-400 to-emerald-600',
+        theme: 'bg-teal-950'
     }
 ];
 
 export const BreathingExercisesPage: React.FC = () => {
-    const navigate = useNavigate();
     const [selectedExercise, setSelectedExercise] = useState<ExerciseType | null>(null);
     const [isActive, setIsActive] = useState(false);
 
-    // Box Breathing Animation (4s - 4s - 4s - 4s)
+    // Box Breathing Animation
     const BoxAnimation = () => {
         const [text, setText] = useState('Inhale');
+        const timerRef = useRef<number | null>(null);
 
         useEffect(() => {
             const intervals = [4000, 4000, 4000, 4000];
@@ -58,24 +66,26 @@ export const BreathingExercisesPage: React.FC = () => {
             const nextStep = () => {
                 const duration = intervals[currentIndex];
                 setText(texts[currentIndex]);
-
                 currentIndex = (currentIndex + 1) % intervals.length;
                 timerRef.current = setTimeout(nextStep, duration);
             };
 
-            const timerRef = { current: setTimeout(nextStep, 0) }; // Start immediately
-
-            return () => clearTimeout(timerRef.current);
+            nextStep();
+            return () => {
+                if (timerRef.current) clearTimeout(timerRef.current);
+            };
         }, []);
 
         return (
-            <div className="relative w-64 h-64 flex items-center justify-center">
-                <div className="absolute w-full h-full border-4 border-white/20 rounded-xl" />
+            <div className="relative w-72 h-72 flex items-center justify-center">
+                <div className="absolute w-full h-full border-[6px] border-white/20 rounded-3xl" />
                 <motion.div
-                    className="absolute w-8 h-8 bg-white rounded-full shadow-[0_0_15px_rgba(255,255,255,0.5)]"
+                    className="absolute w-10 h-10 bg-white rounded-xl shadow-[0_0_30px_rgba(255,255,255,0.8)]"
                     animate={{
-                        top: ['90%', '0%', '0%', '90%', '90%'],
-                        left: ['0%', '0%', '90%', '90%', '0%']
+                        top: ['0%', '0%', '100%', '100%', '0%'],
+                        left: ['0%', '100%', '100%', '0%', '0%'],
+                        x: ['0%', '-100%', '-100%', '0%', '0%'],
+                        y: ['0%', '0%', '-100%', '-100%', '0%']
                     }}
                     transition={{
                         duration: 16,
@@ -84,14 +94,15 @@ export const BreathingExercisesPage: React.FC = () => {
                         repeat: Infinity,
                     }}
                 />
-                <div className="text-4xl font-light text-white z-10">{text}</div>
+                <div className="text-4xl font-heading font-black text-white tracking-widest uppercase z-10 filter drop-shadow-md">{text}</div>
             </div>
         );
     };
 
-    // 4-7-8 Animation (4s - 7s - 8s)
+    // 4-7-8 Animation
     const LotusAnimation = () => {
         const [text, setText] = useState('Inhale');
+        const timerRef = useRef<number | null>(null);
 
         useEffect(() => {
             const intervals = [4000, 7000, 8000];
@@ -101,27 +112,23 @@ export const BreathingExercisesPage: React.FC = () => {
             const nextStep = () => {
                 const duration = intervals[currentIndex];
                 setText(texts[currentIndex]);
-
                 currentIndex = (currentIndex + 1) % intervals.length;
                 timerRef.current = setTimeout(nextStep, duration);
             };
 
-            const timerRef = { current: setTimeout(nextStep, 0) };
-
-            return () => clearTimeout(timerRef.current);
+            nextStep();
+            return () => {
+                if (timerRef.current) clearTimeout(timerRef.current);
+            };
         }, []);
 
-        // 4+7+8 = 19s
-        // 4/19 = 0.2105
-        // (4+7)/19 = 11/19 = 0.5789
-        // 19/19 = 1
         return (
             <div className="relative flex items-center justify-center h-96 w-96">
                 {[1, 2, 3].map((i) => (
                     <motion.div
                         key={i}
-                        className="absolute bg-indigo-200/40 rounded-full mix-blend-screen filter blur-xl"
-                        style={{ width: 120, height: 120 }}
+                        className="absolute bg-white/20 rounded-full mix-blend-overlay filter blur-xl shadow-[0_0_50px_rgba(255,255,255,0.3)]"
+                        style={{ width: 140, height: 140 }}
                         animate={{
                             scale: [1, 2.5, 2.5, 1],
                             opacity: [0.3, 0.8, 0.8, 0.3],
@@ -135,14 +142,15 @@ export const BreathingExercisesPage: React.FC = () => {
                         }}
                     />
                 ))}
-                <div className="absolute z-10 text-4xl font-light text-white">{text}</div>
+                <div className="absolute z-10 text-4xl font-heading font-black text-white tracking-widest uppercase filter drop-shadow-md">{text}</div>
             </div>
         );
     };
 
-    // Grounding Wave Animation (5s - 5s - 5s)
+    // Grounding Wave Animation
     const WaveAnimation = () => {
         const [text, setText] = useState('Inhale');
+        const timerRef = useRef<number | null>(null);
 
         useEffect(() => {
             const intervals = [5000, 5000, 5000];
@@ -152,116 +160,192 @@ export const BreathingExercisesPage: React.FC = () => {
             const nextStep = () => {
                 const duration = intervals[currentIndex];
                 setText(texts[currentIndex]);
-
                 currentIndex = (currentIndex + 1) % intervals.length;
                 timerRef.current = setTimeout(nextStep, duration);
             };
 
-            const timerRef = { current: setTimeout(nextStep, 0) };
-
-            return () => clearTimeout(timerRef.current);
+            nextStep();
+            return () => {
+                if (timerRef.current) clearTimeout(timerRef.current);
+            };
         }, []);
 
         return (
-            <div className="relative w-80 h-80 flex items-end justify-center overflow-hidden rounded-full border-4 border-white/20 bg-teal-900/30 backdrop-blur-sm">
+            <div className="relative w-80 h-80 flex items-end justify-center overflow-hidden rounded-full border-[6px] border-white/20 bg-black/20 backdrop-blur-md shadow-[0_0_50px_rgba(255,255,255,0.1)]">
                 <motion.div
-                    className="w-full bg-teal-400/50"
-                    animate={{ height: ['10%', '90%', '90%', '10%'] }}
+                    className="w-[150%] h-[150%] bg-white/30 rounded-[45%] absolute bottom-[-50%]"
+                    animate={{
+                        y: ['70%', '-20%', '-20%', '70%'],
+                        rotate: [0, 90, 180, 360]
+                    }}
                     transition={{
-                        duration: 15,
-                        times: [0, 0.333, 0.666, 1],
-                        ease: "easeInOut",
-                        repeat: Infinity,
+                        y: {
+                            duration: 15,
+                            times: [0, 0.333, 0.666, 1],
+                            ease: "easeInOut",
+                            repeat: Infinity,
+                        },
+                        rotate: {
+                            duration: 10,
+                            ease: "linear",
+                            repeat: Infinity
+                        }
                     }}
                 />
-                <div className="absolute inset-0 flex items-center justify-center z-10 text-4xl font-light text-white">{text}</div>
+                <motion.div
+                    className="w-[150%] h-[150%] bg-white/20 rounded-[40%] absolute bottom-[-50%]"
+                    animate={{
+                        y: ['75%', '-15%', '-15%', '75%'],
+                        rotate: [360, 180, 90, 0]
+                    }}
+                    transition={{
+                        y: {
+                            duration: 15,
+                            times: [0, 0.333, 0.666, 1],
+                            ease: "easeInOut",
+                            repeat: Infinity,
+                        },
+                        rotate: {
+                            duration: 12,
+                            ease: "linear",
+                            repeat: Infinity
+                        }
+                    }}
+                />
+                <div className="absolute inset-0 flex items-center justify-center z-10 text-4xl font-heading font-black text-white tracking-widest uppercase filter drop-shadow-md">{text}</div>
             </div>
         );
     };
 
+    const activeTheme = exercises.find(e => e.id === selectedExercise)?.theme || 'bg-slate-900';
+
     return (
-        <div className={`min-h-screen transition-colors duration-1000 ${selectedExercise === 'box' ? 'bg-slate-900' :
-            selectedExercise === '478' ? 'bg-indigo-950' :
-                selectedExercise === 'grounding' ? 'bg-teal-950' : 'bg-slate-900'
-            } flex flex-col items-center justify-center p-6 relative overflow-hidden`}>
-
-            {/* Background Ambience */}
-            <div className="absolute inset-0 opacity-20 pointer-events-none">
-                <div className="absolute top-0 left-0 w-96 h-96 bg-white rounded-full mix-blend-overlay filter blur-[100px] animate-pulse" />
-                <div className="absolute bottom-0 right-0 w-96 h-96 bg-white rounded-full mix-blend-overlay filter blur-[100px] animate-pulse" style={{ animationDelay: '2s' }} />
-            </div>
-
-            <button
-                onClick={() => isActive ? setIsActive(false) : navigate('/dashboard')}
-                className="absolute top-8 right-8 text-white/70 hover:text-white hover:bg-white/10 p-2 rounded-full transition-all z-20"
+        <React.Fragment>
+            {/* Standard Dashboard View Segment */}
+            <motion.div
+                initial="hidden"
+                animate="show"
+                variants={{
+                    hidden: { opacity: 0 },
+                    show: {
+                        opacity: 1,
+                        transition: { staggerChildren: 0.1 }
+                    }
+                }}
+                className="max-w-7xl mx-auto space-y-8"
             >
-                <X className="w-8 h-8" />
-            </button>
+                <motion.div variants={STAGGER_CHILD_VARIANTS} className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+                    <div>
+                        <h1 className="text-3xl font-heading font-bold text-slate-900 tracking-tight">Breathing Space</h1>
+                        <p className="text-slate-500 mt-2 text-lg">Select a guided breathing pattern to find your center and relieve stress.</p>
+                    </div>
+                </motion.div>
 
-            <AnimatePresence mode="wait">
-                {!isActive ? (
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -20 }}
-                        className="max-w-5xl w-full z-10"
-                    >
-                        <h1 className="text-4xl md:text-5xl font-light text-white mb-2 text-center tracking-wide">Breathing Space</h1>
-                        <p className="text-white/60 text-center mb-12 text-lg">Choose your rhythm to find your center.</p>
+                <motion.div variants={STAGGER_CHILD_VARIANTS} className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {exercises.map((ex) => (
+                        <motion.div
+                            key={ex.id}
+                            whileHover={{ y: -8 }}
+                            className="bg-white rounded-3xl p-8 border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] transition-all cursor-pointer group flex flex-col relative overflow-hidden"
+                            onClick={() => {
+                                setSelectedExercise(ex.id);
+                                setIsActive(true);
+                            }}
+                        >
+                            <div className={`absolute top-0 right-0 w-48 h-48 bg-gradient-to-br ${ex.color} opacity-5 rounded-full blur-3xl -mr-24 -mt-24 group-hover:opacity-10 transition-opacity`}></div>
 
-                        <div className="grid md:grid-cols-3 gap-6">
-                            {exercises.map((ex) => (
-                                <motion.button
-                                    key={ex.id}
-                                    whileHover={{ scale: 1.05, translateY: -5 }}
-                                    whileTap={{ scale: 0.98 }}
-                                    onClick={() => {
-                                        setSelectedExercise(ex.id);
-                                        setIsActive(true);
-                                    }}
-                                    className="bg-white/10 backdrop-blur-md p-8 rounded-3xl border border-white/10 text-left hover:bg-white/20 transition-all group"
-                                >
-                                    <div className={`w-14 h-14 ${ex.color} rounded-2xl flex items-center justify-center text-white mb-6 shadow-lg group-hover:shadow-${ex.color}/50 transition-shadow`}>
-                                        <ex.icon className="w-7 h-7" />
-                                    </div>
-                                    <h3 className="text-2xl font-semibold text-white mb-2">{ex.title}</h3>
-                                    <p className="text-white/60 text-sm mb-4 leading-relaxed">{ex.description}</p>
-                                    <div className="text-xs font-mono text-white/40 bg-black/20 p-2 rounded-lg inline-block">
-                                        {ex.instruction}
-                                    </div>
-                                </motion.button>
-                            ))}
-                        </div>
-                    </motion.div>
-                ) : (
+                            <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${ex.color} flex items-center justify-center text-white mb-8 shadow-lg relative z-10`}>
+                                <ex.icon className="w-8 h-8" />
+                            </div>
+
+                            <h3 className="text-2xl font-bold font-heading text-slate-900 mb-3 relative z-10">{ex.title}</h3>
+                            <p className="text-slate-500 text-sm mb-8 leading-relaxed relative z-10 flex-1">{ex.description}</p>
+
+                            <div className="mt-auto relative z-10">
+                                <span className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 block">Pattern</span>
+                                <div className="bg-slate-50 border border-slate-100 p-3 rounded-xl text-xs font-semibold text-slate-700 flex items-center justify-between">
+                                    {ex.instruction}
+                                    <Maximize2 className="w-4 h-4 text-slate-400 group-hover:text-primary-500 transition-colors" />
+                                </div>
+                            </div>
+                        </motion.div>
+                    ))}
+                </motion.div>
+            </motion.div>
+
+            {/* Immersive Breathing Session Overlay */}
+            <AnimatePresence>
+                {isActive && selectedExercise && (
                     <motion.div
-                        initial={{ opacity: 0, scale: 0.9 }}
+                        initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.9 }}
-                        className="flex flex-col items-center justify-center w-full max-w-4xl z-10 min-h-[60vh]"
+                        exit={{ opacity: 0, scale: 1.05 }}
+                        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                        className={`fixed inset-0 z-[100] ${activeTheme} flex flex-col items-center justify-center p-6 overflow-hidden`}
                     >
-                        <h2 className="text-3xl font-light text-white mb-12 opacity-80 tracking-widest uppercase">
-                            {exercises.find(e => e.id === selectedExercise)?.title}
-                        </h2>
-
-                        <div className="flex-1 flex items-center justify-center w-full mb-16">
-                            {selectedExercise === 'box' && <BoxAnimation />}
-                            {selectedExercise === '478' && <LotusAnimation />}
-                            {selectedExercise === 'grounding' && <WaveAnimation />}
+                        {/* Background Ambience */}
+                        <div className="absolute inset-0 opacity-30 pointer-events-none">
+                            <motion.div
+                                className="absolute top-[10%] left-[20%] w-[40vw] h-[40vw] max-w-[600px] max-h-[600px] bg-white rounded-full mix-blend-overlay filter blur-[120px]"
+                                animate={{
+                                    scale: [1, 1.2, 1],
+                                    opacity: [0.3, 0.6, 0.3],
+                                }}
+                                transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+                            />
+                            <motion.div
+                                className="absolute bottom-[10%] right-[20%] w-[35vw] h-[35vw] max-w-[500px] max-h-[500px] bg-white rounded-full mix-blend-overlay filter blur-[100px]"
+                                animate={{
+                                    scale: [1, 1.3, 1],
+                                    opacity: [0.2, 0.5, 0.2],
+                                }}
+                                transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+                            />
                         </div>
 
                         <button
                             onClick={() => {
                                 setIsActive(false);
-                                setSelectedExercise(null);
+                                setTimeout(() => setSelectedExercise(null), 600);
                             }}
-                            className="px-10 py-4 bg-white/10 hover:bg-white/20 text-white rounded-full font-medium backdrop-blur-sm transition-all border border-white/10 tracking-wide"
+                            className="absolute top-8 left-8 text-white/50 hover:text-white bg-white/5 hover:bg-white/10 border border-white/10 backdrop-blur-md px-5 py-2.5 rounded-2xl transition-all z-20 flex items-center gap-2 font-semibold shadow-2xl"
                         >
-                            End Session
+                            <ArrowLeft className="w-5 h-5" /> Exit Session
                         </button>
+
+                        <div className="flex flex-col items-center justify-center w-full max-w-4xl z-10 flex-1">
+                            <motion.h2
+                                initial={{ opacity: 0, y: -20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.4 }}
+                                className="text-2xl font-bold text-white/80 mb-16 tracking-[0.2em] uppercase font-heading"
+                            >
+                                {exercises.find(e => e.id === selectedExercise)?.title}
+                            </motion.h2>
+
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.8 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                transition={{ delay: 0.6, duration: 1 }}
+                                className="flex items-center justify-center w-full"
+                            >
+                                {selectedExercise === 'box' && <BoxAnimation />}
+                                {selectedExercise === '478' && <LotusAnimation />}
+                                {selectedExercise === 'grounding' && <WaveAnimation />}
+                            </motion.div>
+                        </div>
+
+                        <motion.p
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ delay: 1 }}
+                            className="absolute bottom-10 text-white/40 text-sm font-medium tracking-wide"
+                        >
+                            Close your eyes if you feel comfortable.
+                        </motion.p>
                     </motion.div>
                 )}
             </AnimatePresence>
-        </div>
+        </React.Fragment>
     );
 };

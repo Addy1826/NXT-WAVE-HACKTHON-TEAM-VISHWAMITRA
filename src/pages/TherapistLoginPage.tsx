@@ -21,19 +21,26 @@ export const TherapistLoginPage: React.FC = () => {
         try {
             const response = await api.post('/auth/login', { email, password });
 
-            if (response.data.user.role !== 'therapist') {
-                // Convert to patient dashboard if they are a patient
-                if (response.data.user.role === 'patient') {
-                    login(response.data.token, response.data.user);
-                    navigate('/dashboard');
-                    return;
-                }
+            const user = response.data.user;
+            const token = response.data.token;
+
+            if (user.role === 'patient') {
+                // If patient logs in here, redirect to their board
+                login(token, user);
+                navigate('/dashboard');
+                return;
+            } else if (user.role !== 'therapist') {
+                // Block if it's admin or some unknown role for now
+                setError('Unauthorized access. Therapists only.');
+                setIsLoading(false);
+                return;
             }
 
-            login(response.data.token, response.data.user);
+            // Normal therapist flow
+            login(token, user);
             navigate('/therapist/dashboard');
         } catch (err: any) {
-            setError(err.response?.data?.error || 'Failed to login');
+            setError(err.response?.data?.error || err.response?.data?.message || 'Failed to login');
         } finally {
             setIsLoading(false);
         }

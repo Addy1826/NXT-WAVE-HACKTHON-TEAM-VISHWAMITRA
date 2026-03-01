@@ -20,7 +20,8 @@ export const TherapistDashboard: React.FC = () => {
         const fetchStats = async () => {
             try {
                 const token = localStorage.getItem('token');
-                const response = await axios.get('http://localhost:5000/api/therapists/dashboard/stats', {
+                const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+                const response = await axios.get(`${API_BASE_URL}/therapists/dashboard/stats`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 setStats(response.data.metrics);

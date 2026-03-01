@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
     AlertCircle,
     Calendar as CalendarIcon,
@@ -10,10 +10,18 @@ import {
     CheckCircle,
     XCircle,
     MessageSquare,
-    TrendingUp
+    TrendingUp,
+    MoreHorizontal,
+    ChevronRight,
+    Activity
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useTherapistCrisisAlerts } from '../hooks/useTherapistCrisisAlerts.ts';
+
+const STAGGER_CHILD_VARIANTS = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0, transition: { type: "spring" as const, stiffness: 300, damping: 24 } }
+};
 
 interface Appointment {
     id: string;
@@ -23,6 +31,7 @@ interface Appointment {
     durationMinutes: number;
     type: 'VIDEO_CALL' | 'AUDIO_CALL' | 'CHAT_ONLY';
     status: 'PENDING' | 'CONFIRMED' | 'COMPLETED' | 'CANCELLED';
+    avatar?: string;
 }
 
 interface DashboardStats {
@@ -37,6 +46,7 @@ interface ActivityItem {
     type: 'SESSION_COMPLETED' | 'MESSAGE_SENT' | 'APPOINTMENT_APPROVED';
     description: string;
     timestamp: Date;
+    actor: string;
 }
 
 export const TherapistDashboardPage: React.FC = () => {
@@ -57,63 +67,68 @@ export const TherapistDashboardPage: React.FC = () => {
     }, []);
 
     const fetchDashboardData = async () => {
-        // TODO: Replace with actual API calls
         // Mock data for demonstration
         const mockAppointments: Appointment[] = [
             {
                 id: '1',
                 patientId: 'p1',
                 patientName: 'Rahul M.',
-                scheduledAt: new Date(Date.now() + 3600000), // 1 hour from now
+                scheduledAt: new Date(Date.now() + 3600000 * 2),
                 durationMinutes: 50,
                 type: 'VIDEO_CALL',
-                status: 'CONFIRMED'
+                status: 'CONFIRMED',
+                avatar: 'https://ui-avatars.com/api/?name=Rahul+M&background=3b82f6&color=fff'
             },
             {
                 id: '2',
                 patientId: 'p2',
                 patientName: 'Priya S.',
-                scheduledAt: new Date(Date.now() + 7200000), // 2 hours
+                scheduledAt: new Date(Date.now() + 3600000 * 4),
                 durationMinutes: 50,
                 type: 'VIDEO_CALL',
-                status: 'CONFIRMED'
+                status: 'CONFIRMED',
+                avatar: 'https://ui-avatars.com/api/?name=Priya+S&background=10b981&color=fff'
             },
             {
                 id: '3',
                 patientId: 'p3',
                 patientName: 'Anonymous #4521',
-                scheduledAt: new Date(Date.now() + 14400000), // 4 hours
+                scheduledAt: new Date(Date.now() + 3600000 * 5),
                 durationMinutes: 30,
                 type: 'CHAT_ONLY',
-                status: 'PENDING'
+                status: 'PENDING',
+                avatar: 'https://ui-avatars.com/api/?name=Anon&background=64748b&color=fff'
             }
         ];
 
         const mockStats: DashboardStats = {
-            upcomingSessions: 5,
-            pendingMessages: 3,
-            totalEarningsINR: 45000,
-            completedThisMonth: 28
+            upcomingSessions: 8,
+            pendingMessages: 12,
+            totalEarningsINR: 84500,
+            completedThisMonth: 42
         };
 
         const mockActivity: ActivityItem[] = [
             {
                 id: '1',
                 type: 'SESSION_COMPLETED',
-                description: 'Completed 50min session with Aditya K.',
-                timestamp: new Date(Date.now() - 3600000) // 1 hour ago
+                description: 'Completed 50min session',
+                actor: 'Aditya K.',
+                timestamp: new Date(Date.now() - 3600000)
             },
             {
                 id: '2',
                 type: 'MESSAGE_SENT',
-                description: 'Replied to Neha P.\'s message',
-                timestamp: new Date(Date.now() - 7200000) // 2 hours ago
+                description: 'Replied to secure message',
+                actor: 'Neha P.',
+                timestamp: new Date(Date.now() - 7200000)
             },
             {
                 id: '3',
                 type: 'APPOINTMENT_APPROVED',
-                description: 'Approved new booking from Rajesh T.',
-                timestamp: new Date(Date.now() - 10800000) // 3 hours ago
+                description: 'Approved new booking request',
+                actor: 'Rajesh T.',
+                timestamp: new Date(Date.now() - 10800000)
             }
         ];
 
@@ -131,270 +146,281 @@ export const TherapistDashboardPage: React.FC = () => {
         const minutes = Math.floor(diff / 60000);
         const hours = Math.floor(minutes / 60);
 
-        if (minutes < 60) return `${minutes} mins ago`;
-        if (hours < 24) return `${hours} hours ago`;
+        if (minutes < 60) return `${minutes}m ago`;
+        if (hours < 24) return `${hours}h ago`;
         return 'Yesterday';
     };
 
-
-
     const handleAcceptCrisis = (alertId: string) => {
         acceptCrisisSession(alertId);
-        // TODO: Navigate to emergency session room
+        // Navigate to emergency session room
+        navigate(`/therapist/session/crisis-${alertId}`);
     };
 
-    const getTodaysAppointments = () => {
+    const todaysAppointments = appointments.filter(apt => {
+        const aptDate = new Date(apt.scheduledAt);
         const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const tomorrow = new Date(today);
-        tomorrow.setDate(tomorrow.getDate() + 1);
-
-        return appointments.filter(apt => {
-            const aptDate = new Date(apt.scheduledAt);
-            return aptDate >= today && aptDate < tomorrow;
-        });
-    };
-
-    const todaysAppointments = getTodaysAppointments();
+        return aptDate.getDate() === today.getDate() && aptDate.getMonth() === today.getMonth();
+    }).sort((a, b) => a.scheduledAt.getTime() - b.scheduledAt.getTime());
 
     return (
-        <div className="min-h-screen bg-neutral-50 p-6">
-            <div className="max-w-7xl mx-auto space-y-6">
-                {/* Header */}
-                <div className="mb-8">
-                    <h1 className="text-4xl font-heading text-neutral-900 mb-2">Dashboard</h1>
-                    <p className="text-neutral-600">
+        <motion.div
+            initial="hidden"
+            animate="show"
+            variants={{
+                hidden: { opacity: 0 },
+                show: {
+                    opacity: 1,
+                    transition: { staggerChildren: 0.1 }
+                }
+            }}
+            className="max-w-7xl mx-auto space-y-8"
+        >
+            {/* Header */}
+            <motion.div variants={STAGGER_CHILD_VARIANTS} className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+                <div>
+                    <h1 className="text-3xl font-heading font-bold text-slate-900 tracking-tight">Overview</h1>
+                    <p className="text-slate-500 mt-2 text-lg">
                         Welcome back, Dr. Sarah. {crisisAlerts.length > 0 && (
-                            <span className="text-danger-600 font-semibold">
-                                You have {crisisAlerts.length} emergency alert{crisisAlerts.length > 1 ? 's' : ''} pending.
+                            <span className="text-red-500 font-semibold ml-1">
+                                You have {crisisAlerts.length} emergency alert{crisisAlerts.length > 1 ? 's' : ''} pending!
                             </span>
                         )}
                     </p>
                 </div>
+                <div className="flex items-center gap-3">
+                    <button onClick={() => navigate('/therapist/settings')} className="px-4 py-2 bg-white border border-slate-200 text-slate-600 rounded-xl hover:bg-slate-50 font-semibold shadow-sm transition-all">
+                        Manage Availability
+                    </button>
+                    <button className="px-4 py-2 bg-primary-600 text-white rounded-xl hover:bg-primary-700 font-bold shadow-lg shadow-primary-500/20 transition-all hover:-translate-y-0.5">
+                        Start Next Session
+                    </button>
+                </div>
+            </motion.div>
 
-                {/* Crisis Alerts - Top Priority */}
+            {/* Crisis Alerts - High Priority */}
+            <AnimatePresence>
                 {crisisAlerts.length > 0 && (
-                    <div className="space-y-4 mb-6">
+                    <motion.div variants={STAGGER_CHILD_VARIANTS} className="space-y-4">
                         {crisisAlerts.map((alert) => (
                             <motion.div
                                 key={alert.id}
-                                className="bg-danger-50 border-2 border-danger-400 rounded-xl p-6 shadow-lg"
+                                className="bg-gradient-to-r from-red-50 to-rose-50 border border-red-200 rounded-3xl p-6 shadow-lg shadow-red-500/10 relative overflow-hidden group"
                                 initial={{ opacity: 0, y: -20, scale: 0.95 }}
                                 animate={{ opacity: 1, y: 0, scale: 1 }}
+                                exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
                                 transition={{ type: 'spring', stiffness: 300 }}
                             >
-                                <div className="flex items-start justify-between">
-                                    <div className="flex items-start gap-4 flex-1">
-                                        <motion.div
-                                            className="p-3 bg-danger-200 rounded-full"
-                                            animate={{ scale: [1, 1.1, 1] }}
-                                            transition={{ repeat: Infinity, duration: 1.5 }}
-                                        >
-                                            <AlertCircle className="w-8 h-8 text-danger-700" />
-                                        </motion.div>
-                                        <div className="flex-1">
-                                            <h3 className="text-xl font-heading text-danger-900 mb-2 flex items-center gap-2">
-                                                🚨 Emergency Session Request
-                                                <span className="text-sm px-2 py-1 bg-danger-600 text-white rounded-full">
-                                                    Crisis Level {alert.crisisLevel}/10
+                                <div className="absolute right-0 top-0 w-64 h-64 bg-red-400 opacity-5 rounded-full blur-3xl -mr-20 -mt-20 group-hover:opacity-10 transition-opacity"></div>
+                                <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 relative z-10">
+                                    <div className="flex items-start gap-5 flex-1">
+                                        <div className="relative">
+                                            <div className="absolute inset-0 bg-red-400 blur-md opacity-40 rounded-full animate-pulse"></div>
+                                            <div className="p-4 bg-red-100 rounded-2xl relative z-10 border border-red-200">
+                                                <AlertCircle className="w-8 h-8 text-red-600" />
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <div className="flex items-center gap-3 mb-2">
+                                                <h3 className="text-xl font-heading font-black text-red-900 tracking-tight">
+                                                    Emergency Protocol Activated
+                                                </h3>
+                                                <span className="px-2.5 py-1 bg-red-600 text-white text-[10px] uppercase font-black tracking-widest rounded-md shadow-sm">
+                                                    Level {alert.crisisLevel}
                                                 </span>
-                                            </h3>
-                                            <p className="text-danger-800 mb-4">{alert.message}</p>
-                                            <p className="text-sm text-danger-700">
-                                                User: {alert.userId} • {new Date(alert.timestamp).toLocaleString('en-IN')}
+                                            </div>
+                                            <p className="text-red-800/80 font-medium mb-1 line-clamp-2 md:line-clamp-1">"{alert.message}"</p>
+                                            <p className="text-xs font-bold text-red-500 uppercase tracking-wider">
+                                                Patient ID: {alert.userId} • Reported {formatRelativeTime(new Date(alert.timestamp))}
                                             </p>
                                         </div>
                                     </div>
-                                    <div className="flex gap-2">
-                                        <button
-                                            onClick={() => handleAcceptCrisis(alert.id)}
-                                            className="px-4 py-2 bg-danger-600 text-white rounded-lg font-medium hover:bg-danger-700 transition-colors flex items-center gap-2"
-                                        >
-                                            <Video className="w-4 h-4" />
-                                            Accept & Join
-                                        </button>
+                                    <div className="flex w-full md:w-auto gap-3">
                                         <button
                                             onClick={() => dismissAlert(alert.id)}
-                                            className="px-4 py-2 bg-white text-danger-700 border border-danger-300 rounded-lg font-medium hover:bg-neutral-50 transition-colors"
+                                            className="flex-1 md:flex-none px-6 py-3 bg-white text-red-600 rounded-xl font-bold hover:bg-red-50 transition-colors shadow-sm border border-red-100"
                                         >
-                                            <XCircle className="w-4 h-4" />
+                                            Dismiss
+                                        </button>
+                                        <button
+                                            onClick={() => handleAcceptCrisis(alert.id)}
+                                            className="flex-1 md:flex-none px-6 py-3 bg-red-600 text-white rounded-xl font-bold hover:bg-red-700 transition-all shadow-xl shadow-red-600/20 hover:-translate-y-0.5 flex justify-center items-center gap-2"
+                                        >
+                                            <Video className="w-5 h-5" />
+                                            Intervene Now
                                         </button>
                                     </div>
                                 </div>
                             </motion.div>
                         ))}
-                    </div>
+                    </motion.div>
                 )}
+            </AnimatePresence>
 
-                {/* Stats Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <motion.div
-                        className="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow"
-                        whileHover={{ y: -4 }}
-                    >
-                        <div className="flex items-center justify-between mb-4">
-                            <div className="p-3 bg-primary-100 rounded-lg">
-                                <CalendarIcon className="w-6 h-6 text-primary-600" />
-                            </div>
-                            <span className="text-2xl font-bold text-primary-600">{stats.upcomingSessions}</span>
+            {/* Stats Grid */}
+            <motion.div variants={STAGGER_CHILD_VARIANTS} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {[
+                    { label: "Upcoming Sessions", value: stats.upcomingSessions, icon: CalendarIcon, color: "blue", prefix: "" },
+                    { label: "Pending Messages", value: stats.pendingMessages, icon: MessageSquare, color: "fuchsia", prefix: "" },
+                    { label: "Monthly Earnings", value: stats.totalEarningsINR.toLocaleString('en-IN'), icon: DollarSign, color: "emerald", prefix: "₹" },
+                    { label: "Completed Sessions", value: stats.completedThisMonth, icon: CheckCircle, color: "indigo", prefix: "" }
+                ].map((stat, idx) => (
+                    <div key={idx} className="bg-white p-6 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 flex items-center gap-5 relative overflow-hidden group hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] transition-all">
+                        <div className={`absolute top-0 right-0 w-32 h-32 bg-${stat.color}-500 blur-[80px] opacity-10 rounded-full -mr-16 -mt-16 group-hover:opacity-20 transition-opacity`}></div>
+                        <div className={`p-4 bg-${stat.color}-50 text-${stat.color}-600 rounded-2xl ring-1 ring-${stat.color}-100 relative z-10 shadow-inner`}>
+                            <stat.icon className="w-7 h-7" />
                         </div>
-                        <h3 className="text-neutral-700 font-medium">Upcoming Sessions</h3>
-                        <p className="text-sm text-neutral-500 mt-1">Next 7 days</p>
-                    </motion.div>
-
-                    <motion.div
-                        className="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow"
-                        whileHover={{ y: -4 }}
-                    >
-                        <div className="flex items-center justify-between mb-4">
-                            <div className="p-3 bg-secondary-100 rounded-lg">
-                                <MessageSquare className="w-6 h-6 text-secondary-600" />
-                            </div>
-                            <span className="text-2xl font-bold text-secondary-600">{stats.pendingMessages}</span>
+                        <div className="relative z-10">
+                            <p className="text-xs font-bold text-slate-400 mb-1 uppercase tracking-wider">{stat.label}</p>
+                            <p className="text-3xl font-black text-slate-900 tracking-tight">{stat.prefix}{stat.value}</p>
                         </div>
-                        <h3 className="text-neutral-700 font-medium">Pending Messages</h3>
-                        <p className="text-sm text-neutral-500 mt-1">Unread chats</p>
-                    </motion.div>
+                    </div>
+                ))}
+            </motion.div>
 
-                    <motion.div
-                        className="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow"
-                        whileHover={{ y: -4 }}
-                    >
-                        <div className="flex items-center justify-between mb-4">
-                            <div className="p-3 bg-green-100 rounded-lg">
-                                <DollarSign className="w-6 h-6 text-green-600" />
-                            </div>
-                            <span className="text-2xl font-bold text-green-600">₹{stats.totalEarningsINR.toLocaleString('en-IN')}</span>
+            {/* Main Content Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                {/* Today's Appointments */}
+                <motion.div variants={STAGGER_CHILD_VARIANTS} className="lg:col-span-2 bg-white rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 flex flex-col">
+                    <div className="flex items-center justify-between mb-8">
+                        <div>
+                            <h2 className="text-2xl font-heading font-black text-slate-900 tracking-tight">Today's Schedule</h2>
+                            <p className="text-sm font-medium text-slate-500 mt-1">You have {todaysAppointments.length} sessions today.</p>
                         </div>
-                        <h3 className="text-neutral-700 font-medium">Monthly Earnings</h3>
-                        <p className="text-sm text-neutral-500 mt-1">This month</p>
-                    </motion.div>
-
-                    <motion.div
-                        className="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow"
-                        whileHover={{ y: -4 }}
-                    >
-                        <div className="flex items-center justify-between mb-4">
-                            <div className="p-3 bg-primary-100 rounded-lg">
-                                <CheckCircle className="w-6 h-6 text-primary-600" />
-                            </div>
-                            <span className="text-2xl font-bold text-primary-600">{stats.completedThisMonth}</span>
-                        </div>
-                        <h3 className="text-neutral-700 font-medium">Completed Sessions</h3>
-                        <p className="text-sm text-neutral-500 mt-1">This month</p>
-                    </motion.div>
-                </div>
-
-                {/* Main Content Grid */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    {/* Today's Appointments */}
-                    <div className="lg:col-span-2 bg-white rounded-xl p-6 shadow-sm">
-                        <div className="flex items-center justify-between mb-6">
-                            <h2 className="text-2xl font-heading text-neutral-900">Today's Appointments</h2>
-                            <button
-                                onClick={() => navigate('/therapist/appointments')}
-                                className="text-primary-600 hover:text-primary-700 font-medium text-sm"
-                            >
-                                View All →
-                            </button>
-                        </div>
-
-                        {todaysAppointments.length === 0 ? (
-                            <div className="text-center py-12">
-                                <CalendarIcon className="w-16 h-16 text-neutral-300 mx-auto mb-4" />
-                                <p className="text-neutral-500">No appointments scheduled for today</p>
-                            </div>
-                        ) : (
-                            <div className="space-y-4">
-                                {todaysAppointments.map((apt) => (
-                                    <div
-                                        key={apt.id}
-                                        className="flex items-center justify-between p-4 bg-neutral-50 rounded-lg hover:bg-neutral-100 transition-colors"
-                                    >
-                                        <div className="flex items-center gap-4">
-                                            <div className="p-3 bg-primary-100 rounded-lg">
-                                                <Clock className="w-5 h-5 text-primary-600" />
-                                            </div>
-                                            <div>
-                                                <h3 className="font-semibold text-neutral-900">{apt.patientName}</h3>
-                                                <p className="text-sm text-neutral-600">
-                                                    {formatTime(apt.scheduledAt)} • {apt.durationMinutes} min • {apt.type.replace('_', ' ')}
-                                                </p>
-                                            </div>
-                                        </div>
-                                        <div className="flex items-center gap-2">
-                                            {apt.status === 'PENDING' && (
-                                                <span className="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-sm font-medium">
-                                                    Pending
-                                                </span>
-                                            )}
-                                            {apt.status === 'CONFIRMED' && (
-                                                <button
-                                                    onClick={() => navigate(`/session/${apt.id}`)}
-                                                    className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors flex items-center gap-2 font-medium"
-                                                >
-                                                    <Video className="w-4 h-4" />
-                                                    Join
-                                                </button>
-                                            )}
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
+                        <button
+                            onClick={() => navigate('/therapist/appointments')}
+                            className="flex items-center gap-1 text-primary-600 hover:text-primary-700 font-bold bg-primary-50 px-4 py-2 rounded-xl transition-colors text-sm"
+                        >
+                            View Calendar <ChevronRight className="w-4 h-4" />
+                        </button>
                     </div>
 
-                    {/* Recent Activity */}
-                    <div className="bg-white rounded-xl p-6 shadow-sm">
-                        <h2 className="text-2xl font-heading text-neutral-900 mb-6">Recent Activity</h2>
+                    {todaysAppointments.length === 0 ? (
+                        <div className="flex-1 flex flex-col items-center justify-center p-12 text-center rounded-2xl bg-slate-50 border-2 border-dashed border-slate-200">
+                            <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-sm mb-4">
+                                <CalendarIcon className="w-8 h-8 text-slate-300" />
+                            </div>
+                            <h3 className="text-lg font-bold text-slate-700 mb-1">Clear Schedule</h3>
+                            <p className="text-slate-500 font-medium">You have no appointments scheduled for today.</p>
+                        </div>
+                    ) : (
                         <div className="space-y-4">
-                            {recentActivity.map((activity) => (
-                                <div key={activity.id} className="flex items-start gap-3">
-                                    <div className="p-2 bg-neutral-100 rounded-lg">
-                                        {activity.type === 'SESSION_COMPLETED' && <CheckCircle className="w-4 h-4 text-green-600" />}
-                                        {activity.type === 'MESSAGE_SENT' && <MessageSquare className="w-4 h-4 text-primary-600" />}
-                                        {activity.type === 'APPOINTMENT_APPROVED' && <CheckCircle className="w-4 h-4 text-primary-600" />}
+                            {todaysAppointments.map((apt) => (
+                                <div
+                                    key={apt.id}
+                                    className="flex flex-col sm:flex-row sm:items-center justify-between p-5 bg-white border border-slate-100 rounded-2xl hover:border-primary-100 hover:shadow-md transition-all group"
+                                >
+                                    <div className="flex items-center gap-4 mb-4 sm:mb-0">
+                                        <div className="relative">
+                                            <img src={apt.avatar} alt={apt.patientName} className="w-12 h-12 rounded-xl object-cover shadow-sm" />
+                                            {apt.type === 'VIDEO_CALL' ? (
+                                                <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-blue-100 border-2 border-white rounded-md flex items-center justify-center text-blue-600"><Video className="w-2.5 h-2.5" /></div>
+                                            ) : (
+                                                <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-slate-100 border-2 border-white rounded-md flex items-center justify-center text-slate-600"><MessageSquare className="w-2.5 h-2.5" /></div>
+                                            )}
+                                        </div>
+                                        <div>
+                                            <h3 className="font-bold text-slate-900 group-hover:text-primary-700 transition-colors text-lg leading-tight">{apt.patientName}</h3>
+                                            <div className="flex items-center gap-2 mt-1 text-sm font-semibold text-slate-500">
+                                                <Clock className="w-3.5 h-3.5 text-slate-400" />
+                                                <span>{formatTime(apt.scheduledAt)}</span>
+                                                <span className="w-1 h-1 bg-slate-300 rounded-full mx-0.5"></span>
+                                                <span>{apt.durationMinutes} min</span>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div className="flex-1">
-                                        <p className="text-sm text-neutral-900">{activity.description}</p>
-                                        <p className="text-xs text-neutral-500 mt-1">{formatRelativeTime(activity.timestamp)}</p>
+                                    <div className="flex items-center gap-3 w-full sm:w-auto">
+                                        {apt.status === 'PENDING' ? (
+                                            <div className="flex w-full gap-2">
+                                                <button className="flex-1 sm:flex-none px-4 py-2 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 rounded-xl font-bold transition-colors text-sm">
+                                                    Accept
+                                                </button>
+                                                <button className="flex-1 sm:flex-none px-4 py-2 bg-rose-50 text-rose-700 hover:bg-rose-100 rounded-xl font-bold transition-colors text-sm">
+                                                    Decline
+                                                </button>
+                                            </div>
+                                        ) : (
+                                            <button
+                                                onClick={() => navigate(`/session/${apt.id}`)}
+                                                className="w-full sm:w-auto px-6 py-2.5 bg-slate-900 text-white rounded-xl hover:bg-slate-800 transition-all flex items-center justify-center gap-2 font-bold shadow-md shadow-slate-900/10"
+                                            >
+                                                Join Room
+                                            </button>
+                                        )}
                                     </div>
                                 </div>
                             ))}
                         </div>
+                    )}
+                </motion.div>
+
+                {/* Recent Activity */}
+                <motion.div variants={STAGGER_CHILD_VARIANTS} className="bg-white rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 flex flex-col">
+                    <div className="flex items-center justify-between mb-8">
+                        <h2 className="text-2xl font-heading font-black text-slate-900 tracking-tight">Recent Activity</h2>
+                        <button className="p-2 hover:bg-slate-50 rounded-lg text-slate-400 transition-colors">
+                            <MoreHorizontal className="w-5 h-5" />
+                        </button>
                     </div>
-                </div>
 
-                {/* Quick Actions */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <button
-                        onClick={() => navigate('/therapist/patients')}
-                        className="p-6 bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow text-left group"
-                    >
-                        <Users className="w-8 h-8 text-primary-600 mb-3 group-hover:scale-110 transition-transform" />
-                        <h3 className="font-semibold text-neutral-900 mb-1">My Patients</h3>
-                        <p className="text-sm text-neutral-600">View all active patients</p>
-                    </button>
+                    <div className="space-y-6 flex-1">
+                        {recentActivity.map((activity, idx) => (
+                            <div key={activity.id} className="relative pl-6">
+                                {/* Timeline Line */}
+                                {idx !== recentActivity.length - 1 && (
+                                    <div className="absolute left-[11px] top-8 bottom-[-24px] w-[2px] bg-slate-100 rounded-full"></div>
+                                )}
 
-                    <button
-                        onClick={() => navigate('/therapist/messages')}
-                        className="p-6 bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow text-left group"
-                    >
-                        <MessageSquare className="w-8 h-8 text-secondary-600 mb-3 group-hover:scale-110 transition-transform" />
-                        <h3 className="font-semibold text-neutral-900 mb-1">Messages</h3>
-                        <p className="text-sm text-neutral-600">{stats.pendingMessages} unread messages</p>
-                    </button>
+                                {/* Icon */}
+                                <div className={`absolute left-0 top-1 w-6 h-6 rounded-full flex items-center justify-center border-2 border-white ring-2 ring-slate-50 shadow-sm ${activity.type === 'SESSION_COMPLETED' ? 'bg-indigo-500 text-white' :
+                                        activity.type === 'MESSAGE_SENT' ? 'bg-blue-500 text-white' :
+                                            'bg-emerald-500 text-white'
+                                    }`}>
+                                    {activity.type === 'SESSION_COMPLETED' ? <Video className="w-3 h-3" /> :
+                                        activity.type === 'MESSAGE_SENT' ? <MessageSquare className="w-3 h-3" /> :
+                                            <CheckCircle className="w-3 h-3" />}
+                                </div>
 
-                    <button
-                        onClick={() => navigate('/therapist/earnings')}
-                        className="p-6 bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow text-left group"
-                    >
-                        <TrendingUp className="w-8 h-8 text-green-600 mb-3 group-hover:scale-110 transition-transform" />
-                        <h3 className="font-semibold text-neutral-900 mb-1">Earnings</h3>
-                        <p className="text-sm text-neutral-600">View financial analytics</p>
+                                <div>
+                                    <h4 className="text-sm font-bold text-slate-900">{activity.description}</h4>
+                                    <p className="text-sm text-slate-500 font-medium mt-0.5"><span className="text-slate-700">{activity.actor}</span> • {formatRelativeTime(activity.timestamp)}</p>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+
+                    <button className="w-full mt-6 py-3 bg-slate-50 hover:bg-slate-100 text-slate-600 font-bold rounded-xl transition-colors text-sm border border-slate-200/60">
+                        View All Activity
                     </button>
-                </div>
+                </motion.div>
             </div>
-        </div>
+
+            <motion.div variants={STAGGER_CHILD_VARIANTS} className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div onClick={() => navigate('/therapist/patients')} className="bg-gradient-to-br from-slate-900 to-slate-800 p-6 rounded-3xl text-white cursor-pointer hover:shadow-xl hover:shadow-slate-900/20 hover:-translate-y-1 transition-all group overflow-hidden relative">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-2xl -mr-10 -mt-10 group-hover:bg-white/10 transition-colors"></div>
+                    <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center backdrop-blur-md border border-white/10 mb-4 group-hover:scale-110 transition-transform">
+                        <Users className="w-6 h-6 text-white" />
+                    </div>
+                    <h3 className="text-xl font-bold font-heading mb-1">Patient Directory</h3>
+                    <p className="text-slate-400 font-medium text-sm">Manage files and patient notes.</p>
+                </div>
+                <div onClick={() => navigate('/therapist/messages')} className="bg-white border border-slate-200 p-6 rounded-3xl cursor-pointer hover:border-primary-200 hover:shadow-xl hover:shadow-primary-600/5 hover:-translate-y-1 transition-all group overflow-hidden relative">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-primary-50 rounded-full blur-2xl -mr-10 -mt-10 group-hover:bg-primary-100 transition-colors"></div>
+                    <div className="w-12 h-12 bg-primary-50 rounded-2xl flex items-center justify-center border border-primary-100 mb-4 group-hover:scale-110 transition-transform">
+                        <MessageSquare className="w-6 h-6 text-primary-600" />
+                    </div>
+                    <h3 className="text-xl font-bold font-heading text-slate-900 mb-1">Secure Messages</h3>
+                    <p className="text-slate-500 font-medium text-sm">Respond to patient inquiries.</p>
+                </div>
+                <div onClick={() => navigate('/therapist/earnings')} className="bg-white border border-slate-200 p-6 rounded-3xl cursor-pointer hover:border-emerald-200 hover:shadow-xl hover:shadow-emerald-600/5 hover:-translate-y-1 transition-all group overflow-hidden relative">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-50 rounded-full blur-2xl -mr-10 -mt-10 group-hover:bg-emerald-100 transition-colors"></div>
+                    <div className="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center border border-emerald-100 mb-4 group-hover:scale-110 transition-transform">
+                        <Activity className="w-6 h-6 text-emerald-600" />
+                    </div>
+                    <h3 className="text-xl font-bold font-heading text-slate-900 mb-1">Performance Analytics</h3>
+                    <p className="text-slate-500 font-medium text-sm">View hours and earnings data.</p>
+                </div>
+            </motion.div>
+        </motion.div>
     );
 };

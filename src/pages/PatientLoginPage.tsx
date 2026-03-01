@@ -21,24 +21,25 @@ export const PatientLoginPage: React.FC = () => {
 
         try {
             const response = await api.post('/auth/login', { email, password });
+            const user = response.data.user;
+            const token = response.data.token;
 
-            // Check if user is actually a patient if you want to restrict login
-            if (response.data.user.role !== 'patient') {
-                // Optional: Allow them but redirect elsewhere, or block. 
-                // For now, let's assume we want to let them in but maybe warn or just proceed.
-                // But the UI is specific to patients so maybe we should check.
-                if (response.data.user.role === 'therapist') {
-                    // Redirect therapist to their dashboard if they accidentally login here?
-                    login(response.data.token, response.data.user);
-                    navigate('/therapist/dashboard');
-                    return;
-                }
+            // Redirect therapist to their dashboard if they accidentally login here
+            if (user.role === 'therapist') {
+                login(token, user);
+                navigate('/therapist/dashboard');
+                return;
+            } else if (user.role !== 'patient') {
+                setError('Unauthorized access. Patients only.');
+                setIsLoading(false);
+                return;
             }
 
-            login(response.data.token, response.data.user);
+            // Normal Patient Flow
+            login(token, user);
             navigate('/dashboard');
         } catch (err: any) {
-            setError(err.response?.data?.error || 'Failed to login');
+            setError(err.response?.data?.error || err.response?.data?.message || 'Failed to login');
         } finally {
             setIsLoading(false);
         }

@@ -1,119 +1,206 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
     Mic, Video, PhoneOff, Upload, Save,
-    Lock, MoreVertical
+    Lock, MoreVertical, FileText, CheckCircle2, MicOff, CameraOff, MonitorUp, Settings, HelpCircle, Expand
 } from 'lucide-react';
+import { motion } from 'framer-motion';
+
+const STAGGER_CHILD_VARIANTS = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0, transition: { type: "spring" as const, stiffness: 300, damping: 24 } }
+};
 
 export const SessionPage: React.FC = () => {
     const { appointmentId } = useParams<{ appointmentId: string }>();
     const navigate = useNavigate();
     const [notes, setNotes] = useState('');
+    const [isMuted, setIsMuted] = useState(false);
+    const [isVideoOff, setIsVideoOff] = useState(false);
+    const [sessionTime, setSessionTime] = useState(0);
+
+    // Mock timer effect
+    useEffect(() => {
+        const timer = setInterval(() => {
+            setSessionTime(prev => prev + 1);
+        }, 1000);
+        return () => clearInterval(timer);
+    }, []);
+
+    const formatTime = (seconds: number) => {
+        const h = Math.floor(seconds / 3600);
+        const m = Math.floor((seconds % 3600) / 60);
+        const s = seconds % 60;
+        return [h, m, s]
+            .map(v => v < 10 ? "0" + v : v)
+            .filter((v, i) => v !== "00" || i > 0)
+            .join(":");
+    };
 
     // Construct Jitsi URL
-    // ensure unique room name, usually appName + appointmentId
-    const roomName = `mental-health-app-${appointmentId}`;
+    const roomName = `mch-portal-session-${appointmentId || 'demo'}`;
     const jitsiUrl = `https://meet.jit.si/${roomName}`;
 
     const handleEndCall = () => {
-        if (window.confirm("Are you sure you want to end the session?")) {
+        if (window.confirm("End the session and save your notes?")) {
             navigate('/therapist/appointments');
         }
     };
 
     return (
-        <div className="h-[calc(100vh-64px)] bg-gray-50 p-6 flex gap-6 overflow-hidden">
+        <motion.div
+            initial="hidden"
+            animate="show"
+            variants={{
+                hidden: { opacity: 0 },
+                show: {
+                    opacity: 1,
+                    transition: { staggerChildren: 0.1 }
+                }
+            }}
+            className="h-[calc(100vh-100px)] bg-slate-900 rounded-3xl overflow-hidden flex flex-col lg:flex-row shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-slate-800 m-6"
+        >
             {/* Main Video Area */}
-            <div className="flex-1 flex flex-col bg-white rounded-2xl shadow-sm overflow-hidden">
-                {/* Header */}
-                <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-white">
-                    <div>
-                        <h2 className="text-xl font-bold text-gray-900">Session with Emily R.</h2>
-                        <span className="text-sm text-gray-500 flex items-center mt-1">
-                            <div className="w-2 h-2 rounded-full bg-green-500 mr-2 animate-pulse"></div>
-                            00:12:45
-                        </span>
+            <motion.div variants={STAGGER_CHILD_VARIANTS} className="flex-1 flex flex-col relative h-full">
+
+                {/* Header Overlay */}
+                <div className="absolute top-0 w-full px-6 py-4 flex justify-between items-center bg-gradient-to-b from-slate-900/80 to-transparent z-10 pointer-events-none">
+                    <div className="pointer-events-auto flex items-center gap-4">
+                        <div className="bg-slate-800/80 backdrop-blur-md px-4 py-2 border border-slate-700 rounded-xl flex items-center gap-3 shadow-lg">
+                            <h2 className="text-white font-bold tracking-wide">Session with Emily R.</h2>
+                            <div className="w-px h-4 bg-slate-600"></div>
+                            <span className="text-emerald-400 font-mono font-bold flex items-center text-sm">
+                                <div className="w-2 h-2 rounded-full bg-emerald-500 mr-2 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)]"></div>
+                                {formatTime(sessionTime)}
+                            </span>
+                        </div>
                     </div>
-                    <div className="flex items-center text-gray-500 text-sm">
-                        <Lock className="w-4 h-4 mr-1" />
-                        Secure Connection
+
+                    <div className="pointer-events-auto">
+                        <div className="bg-slate-800/80 backdrop-blur-md px-3 py-1.5 border border-slate-700 rounded-lg flex items-center gap-1.5 text-slate-300 text-xs font-bold uppercase tracking-wider">
+                            <Lock className="w-3.5 h-3.5 text-emerald-400" />
+                            E2E Encrypted
+                        </div>
                     </div>
                 </div>
 
                 {/* Video Container (Iframe) */}
-                <div className="flex-1 bg-gray-900 relative relative group">
+                <div className="flex-1 bg-black relative">
                     <iframe
-                        src={`${jitsiUrl}#config.prejoinPageEnabled=false&interfaceConfig.TOOLBAR_BUTTONS=['microphone','camera','desktop','fullscreen','fodeviceselection','hangup','profile','chat','settings','raisehand','videoquality','filmstrip','feedback','stats','shortcuts','tileview','videobackgroundblur','download','help','mute-everyone','e2ee']`}
+                        src={`${jitsiUrl}#config.prejoinPageEnabled=false&interfaceConfig.TOOLBAR_BUTTONS=[]`}
                         width="100%"
                         height="100%"
                         allow="camera; microphone; fullscreen; display-capture; autoplay"
-                        className="w-full h-full border-none"
+                        className="w-full h-full border-none absolute inset-0"
                         title="Video Session"
                     ></iframe>
-
-                    {/* Custom Overlay Controls (Visual Only - Jitsi has its own, but matching design aesthetics) */}
-                    {/* Note: In a real Jitsi SDK integration, these would function. For iframe, we might hide this or use it as auxiliary */}
-                    <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex items-center gap-4 bg-gray-800/80 backdrop-blur-sm px-6 py-3 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
-                        {/* These are purely decorative here since we stick to iframe for simplicity, 
-                           but user requested the design match. 
-                           Pointer events none so clicks pass through to iframe if needed, 
-                           or we would need Jitsi API to control calls from outside.
-                        */}
-                    </div>
                 </div>
 
                 {/* Footer Controls (Custom Application Controls) */}
-                <div className="px-6 py-4 bg-white border-t border-gray-100 flex justify-center items-center gap-4">
-                    <button className="p-4 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700 transition-colors">
-                        <Mic className="w-6 h-6" />
+                <div className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-slate-800/90 backdrop-blur-xl border border-slate-700 px-8 py-3.5 rounded-2xl flex justify-center items-center gap-3 shadow-2xl z-10 transition-all hover:bg-slate-800">
+                    <button
+                        onClick={() => setIsMuted(!isMuted)}
+                        className={`p-3.5 rounded-xl transition-all ${isMuted ? 'bg-rose-500/20 text-rose-500 hover:bg-rose-500/30' : 'bg-slate-700 text-white hover:bg-slate-600'}`}
+                        title={isMuted ? "Unmute" : "Mute"}
+                    >
+                        {isMuted ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
                     </button>
-                    <button className="p-4 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700 transition-colors">
-                        <Video className="w-6 h-6" />
+
+                    <button
+                        onClick={() => setIsVideoOff(!isVideoOff)}
+                        className={`p-3.5 rounded-xl transition-all ${isVideoOff ? 'bg-rose-500/20 text-rose-500 hover:bg-rose-500/30' : 'bg-slate-700 text-white hover:bg-slate-600'}`}
+                        title={isVideoOff ? "Turn on camera" : "Turn off camera"}
+                    >
+                        {isVideoOff ? <CameraOff className="w-5 h-5" /> : <Video className="w-5 h-5" />}
                     </button>
+
+                    <div className="w-px h-8 bg-slate-700/50 mx-2"></div>
+
+                    <button className="p-3.5 rounded-xl bg-slate-700 text-white hover:bg-slate-600 transition-all" title="Share Screen">
+                        <MonitorUp className="w-5 h-5" />
+                    </button>
+
+                    <button className="p-3.5 rounded-xl bg-slate-700 text-white hover:bg-slate-600 transition-all" title="Settings">
+                        <Settings className="w-5 h-5" />
+                    </button>
+
+                    <button className="p-3.5 rounded-xl bg-slate-700 text-white hover:bg-slate-600 transition-all" title="Full Screen">
+                        <Expand className="w-5 h-5" />
+                    </button>
+
+                    <div className="w-px h-8 bg-slate-700/50 mx-2"></div>
+
                     <button
                         onClick={handleEndCall}
-                        className="p-4 rounded-full bg-red-500 hover:bg-red-600 text-white shadow-lg shadow-red-200 transition-colors"
+                        className="px-6 py-3.5 rounded-xl bg-rose-500 hover:bg-rose-600 text-white font-bold transition-all shadow-lg shadow-rose-500/20 flex items-center gap-2"
                     >
-                        <PhoneOff className="w-6 h-6" />
+                        <PhoneOff className="w-5 h-5" /> End Session
                     </button>
                 </div>
-            </div>
+            </motion.div>
 
-            {/* Sidebar */}
-            <div className="w-96 flex flex-col gap-6">
+            {/* Right Sidebar - Clinical Tools */}
+            <motion.div variants={STAGGER_CHILD_VARIANTS} className="w-full lg:w-[400px] bg-white flex flex-col border-l border-slate-200 z-20">
+
                 {/* Session Notes */}
-                <div className="bg-white rounded-2xl shadow-sm p-6 flex flex-col flex-1 h-3/5">
+                <div className="flex-1 flex flex-col p-6 min-h-[50%] border-b border-slate-100">
                     <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-lg font-bold text-gray-900">Session Notes</h3>
-                        <MoreVertical className="w-5 h-5 text-gray-400 cursor-pointer" />
+                        <div className="flex items-center gap-2">
+                            <div className="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center text-indigo-600 border border-indigo-100">
+                                <FileText className="w-4 h-4" />
+                            </div>
+                            <h3 className="text-lg font-heading font-black text-slate-900">Clinical Notes</h3>
+                        </div>
+                        <button className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-lg transition-colors">
+                            <MoreVertical className="w-4 h-4" />
+                        </button>
                     </div>
-                    <textarea
-                        className="flex-1 w-full p-4 bg-gray-50 border border-gray-200 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700 text-sm leading-relaxed"
-                        placeholder="Type session notes here..."
-                        value={notes}
-                        onChange={(e) => setNotes(e.target.value)}
-                    ></textarea>
-                    <button className="mt-4 w-full py-3 bg-blue-400 hover:bg-blue-500 text-white rounded-xl font-medium transition-colors flex items-center justify-center">
-                        <Save className="w-4 h-4 mr-2" />
-                        Save Notes
-                    </button>
+
+                    <div className="flex-1 relative group">
+                        <textarea
+                            className="absolute inset-0 w-full h-full p-4 bg-slate-50 border border-slate-200 rounded-2xl resize-none focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-slate-700 text-[15px] font-medium leading-relaxed custom-scrollbar transition-all"
+                            placeholder="Type session notes here. These auto-save securely..."
+                            value={notes}
+                            onChange={(e) => setNotes(e.target.value)}
+                        ></textarea>
+                    </div>
+
+                    <div className="mt-4 flex items-center justify-between">
+                        <span className="text-xs font-bold text-slate-400 flex items-center gap-1">
+                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
+                            Auto-saved just now
+                        </span>
+                        <button className="px-5 py-2.5 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 rounded-xl font-bold transition-colors flex items-center justify-center text-sm">
+                            <Save className="w-4 h-4 mr-2" /> Save to File
+                        </button>
+                    </div>
                 </div>
 
                 {/* Share Resources */}
-                <div className="bg-white rounded-2xl shadow-sm p-6 flex flex-col h-2/5">
-                    <h3 className="text-lg font-bold text-gray-900 mb-2">Share Resources</h3>
-                    <p className="text-sm text-gray-500 mb-6 font-light">
-                        Share exercises, worksheets, or helpful guides with your patient.
-                    </p>
+                <div className="p-6 bg-slate-50/50 flex-1 flex flex-col">
+                    <div className="mb-4">
+                        <h3 className="text-lg font-heading font-black text-slate-900">Share Resources</h3>
+                        <p className="text-sm text-slate-500 font-medium mt-1">
+                            Send exercises, worksheets, or guides securely to the patient's portal.
+                        </p>
+                    </div>
 
-                    <div className="border-2 border-dashed border-gray-200 rounded-xl flex-1 flex flex-col items-center justify-center p-4 hover:bg-gray-50 transition-colors cursor-pointer group">
-                        <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center mb-3 group-hover:bg-white transition-colors">
-                            <Upload className="w-5 h-5 text-gray-500" />
+                    <div className="border-2 border-dashed border-slate-200 rounded-2xl flex-1 min-h-[160px] flex flex-col items-center justify-center p-6 bg-white hover:bg-slate-50 hover:border-primary-300 transition-all cursor-pointer group shadow-sm">
+                        <div className="w-14 h-14 bg-primary-50 text-primary-600 border border-primary-100 rounded-2xl flex items-center justify-center mb-4 group-hover:bg-primary-100 group-hover:scale-110 transition-transform">
+                            <Upload className="w-6 h-6" />
                         </div>
-                        <span className="text-sm font-medium text-gray-700">Upload & Share File</span>
+                        <span className="text-sm font-bold text-slate-700 mb-1 group-hover:text-primary-600 transition-colors">Click or drag files here</span>
+                        <span className="text-xs font-semibold text-slate-400 uppercase tracking-widest">PDF, DOCX, JPG up to 10MB</span>
+                    </div>
+
+                    <div className="mt-4 flex justify-center">
+                        <button className="text-xs font-bold text-slate-400 hover:text-slate-600 flex items-center gap-1 transition-colors">
+                            <HelpCircle className="w-3.5 h-3.5" /> Need help uploading?
+                        </button>
                     </div>
                 </div>
-            </div>
-        </div>
+
+            </motion.div>
+        </motion.div>
     );
 };

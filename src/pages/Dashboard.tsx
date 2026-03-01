@@ -1,251 +1,128 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useAuth } from '../context/AuthContext';
-import { ChatWindow } from '../components/ChatWindow';
-import { TherapistList } from '../components/TherapistList';
-import { TherapistProfile } from '../components/TherapistProfile';
-import { InspirationPage } from './InspirationPage';
-import { ProfilePage } from './ProfilePage';
-import api from '../services/api';
-import { LogOut, MessageSquare, Calendar, User, Home, TrendingUp, BookOpen, Bot } from 'lucide-react';
+import { Calendar, TrendingUp, Activity } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+
+const STAGGER_CHILD_VARIANTS = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0, transition: { type: "spring" as const, stiffness: 300, damping: 24 } }
+};
 
 export const Dashboard: React.FC = () => {
-    const { user, logout } = useAuth();
+    const { user } = useAuth();
     const navigate = useNavigate();
-    const [conversations, setConversations] = useState<any[]>([]);
-    const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);
-    const [activeTab, setActiveTab] = useState<'home' | 'chat' | 'appointments' | 'profile'>('home');
-
-    const [, setAppointments] = useState<any[]>([]);
-
-    const fetchAppointments = async () => {
-        try {
-            const data = await api.getAppointments();
-            setAppointments(data);
-        } catch (error) {
-            console.error('Failed to fetch appointments', error);
-        }
-    };
-
-    const fetchConversations = async () => {
-        try {
-            const response = await api.get('/chat/conversations');
-            // Filter out AI Bot conversations (participants include 'bot')
-            const humanConversations = response.data.filter((c: any) =>
-                !c.participants.some((p: any) => p === 'bot' || p?.name === 'bot' || p?._id === 'bot')
-            );
-            setConversations(humanConversations);
-            if (humanConversations.length > 0 && !selectedConversationId) {
-                setSelectedConversationId(humanConversations[0]._id);
-            }
-        } catch (error) {
-            console.error('Failed to fetch conversations', error);
-        }
-    };
-
-    useEffect(() => {
-        if (user?.role === 'therapist') {
-            navigate('/therapist/dashboard', { replace: true });
-            return;
-        }
-        fetchConversations();
-        fetchAppointments();
-    }, [user, navigate]);
-
-    const [selectedTherapist, setSelectedTherapist] = useState<any | null>(null);
-
-    const handleChatWithTherapist = async (therapistId: string) => {
-        try {
-            // Check if conversation already exists
-            const existingConv = conversations.find(c =>
-                c.participants.some((p: any) => (p._id === therapistId || p === therapistId))
-            );
-
-            if (existingConv) {
-                setSelectedConversationId(existingConv._id);
-            } else {
-                // Create new conversation
-                const response = await api.post('/chat/conversations', {
-                    participants: [therapistId],
-                    type: 'direct'
-                });
-                setConversations(prev => [response.data, ...prev]);
-                setSelectedConversationId(response.data._id);
-            }
-
-            // Switch to chat tab
-            setActiveTab('chat');
-            setSelectedTherapist(null); // Close profile
-        } catch (error) {
-            console.error('Failed to start chat', error);
-        }
-    };
 
     return (
-        <div className="flex h-screen bg-slate-50 overflow-hidden">
-            {/* Sidebar */}
-            <div className="w-64 bg-white border-r border-slate-200 flex flex-col">
-                <div className="p-6">
-                    <h1 className="text-2xl font-bold text-primary-600 flex items-center gap-2">
-                        Mindora
-                    </h1>
-                </div>
+        <motion.div
+            initial="hidden"
+            animate="show"
+            variants={{
+                hidden: { opacity: 0 },
+                show: {
+                    opacity: 1,
+                    transition: { staggerChildren: 0.1 }
+                }
+            }}
+            className="max-w-7xl mx-auto space-y-8 animate-fade-in"
+        >
+            <motion.div variants={STAGGER_CHILD_VARIANTS}>
+                <h1 className="text-3xl font-heading font-bold text-slate-900 tracking-tight">Good morning, {user?.name?.split(' ')[0] || 'User'} 👋</h1>
+                <p className="text-slate-500 mt-2 text-lg">Here's your wellness overview for today.</p>
+            </motion.div>
 
-                <nav className="flex-1 px-4 space-y-2">
-                    <button
-                        onClick={() => setActiveTab('home')}
-                        className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${activeTab === 'home' ? 'bg-primary-50 text-primary-700' : 'text-slate-600 hover:bg-slate-50'
-                            }`}
-                    >
-                        <Home className="h-5 w-5" />
-                        <span className="font-medium">Home</span>
-                    </button>
-                    <button
-                        onClick={() => navigate('/messages')}
-                        className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors text-slate-600 hover:bg-slate-50"
-                    >
-                        <MessageSquare className="h-5 w-5" />
-                        <span className="font-medium">Messages</span>
-                    </button>
-                    <button
-                        onClick={() => navigate('/appointments')}
-                        className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors text-slate-600 hover:bg-slate-50"
-                    >
-                        <Calendar className="h-5 w-5" />
-                        <span className="font-medium">Appointments</span>
-                    </button>
-                    <button
-                        onClick={() => navigate('/chatbot')}
-                        className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors text-slate-600 hover:bg-slate-50"
-                    >
-                        <Bot className="h-5 w-5" />
-                        <span className="font-medium">AI Assistant</span>
-                    </button>
-                    <button
-                        onClick={() => navigate('/progress')}
-                        className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors text-slate-600 hover:bg-slate-50"
-                    >
-                        <TrendingUp className="h-5 w-5" />
-                        <span className="font-medium">My Progress</span>
-                    </button>
-                    <button
-                        onClick={() => navigate('/resources')}
-                        className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors text-slate-600 hover:bg-slate-50"
-                    >
-                        <BookOpen className="h-5 w-5" />
-                        <span className="font-medium">Resources</span>
-                    </button>
-                    <button
-                        onClick={() => setActiveTab('profile')}
-                        className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${activeTab === 'profile' ? 'bg-primary-50 text-primary-700' : 'text-slate-600 hover:bg-slate-50'
-                            }`}
-                    >
-                        <User className="h-5 w-5" />
-                        <span className="font-medium">Profile</span>
-                    </button>
-                </nav>
-
-                <div className="p-4 border-t border-slate-200">
-                    <div className="flex items-center space-x-3 mb-4">
-                        <div className="h-10 w-10 rounded-full bg-primary-100 flex items-center justify-center text-primary-700 font-bold">
-                            {user?.name?.charAt(0) || 'U'}
+            {/* Stats Row */}
+            <motion.div variants={STAGGER_CHILD_VARIANTS} className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {[
+                    { title: 'Mood Score', value: '8.5', change: '+12%', color: 'primary', icon: Activity },
+                    { title: 'Sessions Completed', value: '12', change: '+2', color: 'secondary', icon: Calendar },
+                    { title: 'Current Streak', value: '5 days', change: '+1', color: 'emerald', icon: TrendingUp }
+                ].map((stat, idx) => (
+                    <div key={idx} className={`bg-white rounded-3xl p-6 border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] relative overflow-hidden group hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] transition-shadow`}>
+                        <div className={`absolute top-0 right-0 w-32 h-32 bg-${stat.color}-500 blur-[80px] opacity-10 rounded-full -mr-16 -mt-16 group-hover:opacity-20 transition-opacity`}></div>
+                        <div className="flex justify-between items-start mb-4 relative z-10">
+                            <div className={`p-3.5 rounded-2xl bg-${stat.color}-50 text-${stat.color}-600 ring-1 ring-${stat.color}-100`}>
+                                <stat.icon size={24} />
+                            </div>
+                            <span className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100/50">
+                                <TrendingUp className="w-3 h-3" /> {stat.change}
+                            </span>
                         </div>
-                        <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-slate-900 truncate">{user?.name}</p>
-                            <p className="text-xs text-slate-500 truncate">{user?.role}</p>
+                        <div className="relative z-10">
+                            <p className="text-sm font-semibold text-slate-500 mb-1">{stat.title}</p>
+                            <h3 className="text-3xl font-black text-slate-900 tracking-tight">{stat.value}</h3>
                         </div>
                     </div>
-                    <button
-                        onClick={() => {
-                            logout();
-                            window.location.href = '/';
-                        }}
-                        className="w-full flex items-center justify-center space-x-2 px-4 py-2 border border-slate-300 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"
-                    >
-                        <LogOut className="h-4 w-4" />
-                        <span>Sign out</span>
-                    </button>
-                </div>
-            </div>
+                ))}
+            </motion.div>
 
-            {/* Main Content */}
-            <main className="flex-1 flex flex-col min-w-0 overflow-hidden">
-                {activeTab === 'home' && <InspirationPage />}
-
-                {activeTab === 'chat' && (
-                    <div className="flex-1 flex">
-                        {/* Conversation List */}
-                        <div className="w-80 bg-white border-r border-slate-200 flex flex-col">
-                            <div className="p-4 border-b border-slate-200">
-                                <h3 className="font-bold text-slate-700">Your Conversations</h3>
-                            </div>
-                            <div className="flex-1 overflow-y-auto">
-                                {conversations.map(conv => (
-                                    <button
-                                        key={conv._id}
-                                        onClick={() => setSelectedConversationId(conv._id)}
-                                        className={`w-full p-4 text-left border-b border-slate-100 hover:bg-slate-50 transition-colors ${selectedConversationId === conv._id ? 'bg-primary-50' : ''
-                                            }`}
-                                    >
-                                        <div className="flex justify-between items-start">
-                                            <h4 className="font-medium text-slate-900 truncate">
-                                                {conv.type === 'group' ? conv.groupName : 'Direct Chat'}
-                                            </h4>
-                                            <span className="text-xs text-slate-500">
-                                                {new Date(conv.updatedAt).toLocaleDateString()}
-                                            </span>
-                                        </div>
-                                        <p className="text-sm text-slate-500 truncate mt-1">
-                                            {conv.lastMessage?.content || 'No messages yet'}
-                                        </p>
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* Chat Area */}
-                        <div className="flex-1 bg-slate-50 p-4">
-                            {selectedConversationId ? (
-                                <ChatWindow conversationId={selectedConversationId} />
-                            ) : (
-                                <div className="h-full flex items-center justify-center text-slate-500">
-                                    Select a conversation to start chatting
-                                </div>
-                            )}
-                        </div>
+            {/* Recent Activity / Content */}
+            <motion.div variants={STAGGER_CHILD_VARIANTS} className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                {/* Chart Area */}
+                <div className="lg:col-span-2 bg-white rounded-3xl border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-8">
+                    <div className="flex justify-between items-center mb-8">
+                        <h2 className="text-xl font-heading font-bold text-slate-900">Your Progress</h2>
+                        <select className="bg-slate-50 border border-slate-200 text-slate-700 text-sm rounded-xl focus:ring-primary-500 focus:border-primary-500 px-4 py-2 outline-none font-medium transition-all">
+                            <option>Last 7 days</option>
+                            <option>Last 30 days</option>
+                        </select>
                     </div>
-                )}
+                    <div className="h-[300px] w-full">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <AreaChart data={[
+                                { name: 'Mon', score: 6 }, { name: 'Tue', score: 7 }, { name: 'Wed', score: 8 },
+                                { name: 'Thu', score: 7.5 }, { name: 'Fri', score: 9 }, { name: 'Sat', score: 8.5 }, { name: 'Sun', score: 9 }
+                            ]} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                                <defs>
+                                    <linearGradient id="colorScore" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
+                                        <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
+                                    </linearGradient>
+                                </defs>
+                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 13, fontWeight: 500 }} dy={10} />
+                                <YAxis axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 13, fontWeight: 500 }} dx={-10} />
+                                <Tooltip
+                                    contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)', padding: '12px' }}
+                                    cursor={{ stroke: '#cbd5e1', strokeWidth: 1, strokeDasharray: '4 4' }}
+                                />
+                                <Area type="monotone" dataKey="score" stroke="#3b82f6" strokeWidth={4} fillOpacity={1} fill="url(#colorScore)" />
+                            </AreaChart>
+                        </ResponsiveContainer>
+                    </div>
+                </div>
 
-                {activeTab === 'appointments' && (
-                    <div className="p-8 overflow-y-auto h-full">
-                        {selectedTherapist ? (
-                            <TherapistProfile
-                                therapist={selectedTherapist}
-                                onBack={() => setSelectedTherapist(null)}
-                                onChat={() => handleChatWithTherapist(selectedTherapist._id)}
-                                onBookingComplete={fetchAppointments}
-                            />
-                        ) : (
-                            <>
-                                <div className="flex justify-between items-center mb-6">
-                                    <h2 className="text-2xl font-bold text-slate-900">Find a Specialist</h2>
-                                    <div className="flex gap-2">
-                                        <select className="border border-slate-300 rounded-lg px-3 py-2 text-sm">
-                                            <option>All Specializations</option>
-                                            <option>Anxiety</option>
-                                            <option>Depression</option>
-                                            <option>Couples Therapy</option>
-                                        </select>
+                {/* Upcoming Appointments */}
+                <div className="bg-white rounded-3xl border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-8 flex flex-col">
+                    <div className="flex justify-between items-center mb-6">
+                        <h2 className="text-xl font-heading font-bold text-slate-900">Upcoming</h2>
+                        <button className="text-sm font-semibold text-primary-600 hover:text-primary-700 transition-colors">View All</button>
+                    </div>
+                    <div className="space-y-4 flex-1">
+                        {[1, 2].map((i) => (
+                            <div key={i} onClick={() => navigate('/appointments')} className="p-4 rounded-2xl bg-slate-50 border border-slate-100/50 hover:bg-slate-100 transition-all group cursor-pointer hover:-translate-y-0.5 shadow-sm">
+                                <div className="flex items-center gap-4 mb-3">
+                                    <div className="w-12 h-12 rounded-full bg-secondary-100 text-secondary-600 flex items-center justify-center font-bold relative shadow-inner">
+                                        D
+                                        <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
+                                    </div>
+                                    <div>
+                                        <h4 className="font-bold text-slate-900 group-hover:text-primary-600 transition-colors">Dr. Sarah Jenkins</h4>
+                                        <p className="text-xs font-semibold text-slate-500 border border-slate-200 inline-block px-1.5 py-0.5 rounded uppercase tracking-wider mt-1 bg-white">Clinical</p>
                                     </div>
                                 </div>
-                                <TherapistList onSelect={setSelectedTherapist} />
-                            </>
-                        )}
+                                <div className="flex items-center justify-between text-xs font-semibold text-slate-600 bg-white p-2.5 rounded-xl border border-slate-100/80 shadow-[0_2px_10px_rgb(0,0,0,0.02)]">
+                                    <div className="flex items-center gap-1.5"><Calendar className="w-4 h-4 text-primary-500" /> Tomorrow, 10:00 AM</div>
+                                </div>
+                            </div>
+                        ))}
                     </div>
-                )}
-
-                {activeTab === 'profile' && <ProfilePage />}
-            </main>
-        </div>
+                    <button onClick={() => navigate('/appointments')} className="w-full mt-4 py-3.5 rounded-xl border-2 border-dashed border-slate-200 text-slate-500 font-semibold text-sm hover:border-primary-400 hover:text-primary-600 hover:bg-primary-50 transition-all">
+                        + Book New Session
+                    </button>
+                </div>
+            </motion.div>
+        </motion.div>
     );
 };
